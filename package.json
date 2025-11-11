@@ -2,7 +2,7 @@
   "name": "pap",
   "version": "1.0.0",
   "description": "A aplicação web tem como objetivo ajudar os utilizadores a organizar tarefas e notas de forma simples e acessível, permitindo gerir compromissos do dia a dia em qualquer dispositivo.",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
