@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {config } from "dotenv"; config();
+import {config } from "dotenv"; config({silent: true});
 import { getDatabase } from "firebase/database";
 
 const { apiKey, authDomain, databaseURL, projectId, storageBucket, messagingSenderId, appId } = process.env;

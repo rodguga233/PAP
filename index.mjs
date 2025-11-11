@@ -1,13 +1,34 @@
-import { db } from "./database/db.mjs";
-import { get, ref } from "firebase/database";
+import { database } from "./database/func.mjs";
 
 try {
-    const dbRef = ref(db, "/ping");
-    const snapshot = await get(dbRef);
-    if ( !snapshot.exists() ) console.log("Dado não existente");
-    const data = snapshot.val();
-    console.log("Sucesso ao logar!");
-    console.log(data);
-} catch ( error ) {
-    console.log("Erro ao logar na firebase:", error);
+    //Teste de como apreender a mexer com o banco de dados firebase
+    // const dbRef = ref(db, "/ping");
+
+    // const before = Date.now(); // Início da medição de latência
+    // const snapshot = await get(dbRef);
+    // const after = Date.now(); // Fim da medição de latência
+    // const ping = after - before; // Valor da latência em milissegundos
+
+    // if ( !snapshot.exists() ) console.log("Dado não existente"); // Verificar se existe dados
+    
+    // const data = snapshot.val(); // Recuperação do valor do dado
+    // console.log("Sucesso ao logar!");
+    // console.log(`${data} ${ping}ms`);
+
+
+    //Teste de como ler os dados do banco de dados firebase 
+    const before = Date.now();
+    const data = await database.read("/ping");
+    const after = Date.now();
+    const ping = after - before;
+    
+    console.log("Sucesso ao logar na firebase!");
+
+    if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
+
+    //Teste de como escrever os dados no banco de dados firebase
+    await database.write("/hello", "Hello, Firebase!");// /hello é o nó onde o dado será escrito a mensagem e "Hello, Firebase!" é o dado que será escrito
+    
+} catch ( e ) {
+    console.log("Erro ao logar na firebase:", e);
 }
