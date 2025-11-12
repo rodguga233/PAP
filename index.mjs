@@ -17,17 +17,26 @@ try {
 
 
     //Teste de como ler os dados do banco de dados firebase 
-    const before = Date.now();
-    const data = await database.read("/ping");
-    const after = Date.now();
-    const ping = after - before;
+    // const before = Date.now();
+    // const data = await database.read("/ping");
+    // const after = Date.now();
+    // const ping = after - before;
     
-    console.log("Sucesso ao logar na firebase!");
+    // console.log("Sucesso ao logar na firebase!");
 
-    if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
+    // if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
 
-    //Teste de como escrever os dados no banco de dados firebase
-    await database.write("/hello", "Hello, Firebase!");// /hello é o nó onde o dado será escrito a mensagem e "Hello, Firebase!" é o dado que será escrito
+    // //Teste de como escrever os dados no banco de dados firebase
+    // await database.write("/hello", "Hello, Firebase!");// /hello é o nó onde o dado será escrito a mensagem e "Hello, Firebase!" é o dado que será escrito
+
+    // Função para mostrar mensagem
+    function mostrarMensagem(texto) {
+    const elemento = document.getElementById("mensagem");
+    elemento.textContent = texto;
+    }
+
+    // Executa ao carregar
+    mostrarMensagem("Olá, esta é uma mensagem vinda do arquivo .mjs!");
     
 } catch ( e ) {
     console.log("Erro ao logar na firebase:", e);
