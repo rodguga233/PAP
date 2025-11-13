@@ -1,45 +1,56 @@
-// import { database } from "./database/func.mjs";
+import { database } from "./database/func.mjs";
 
-// try {
-//     //Teste de como apreender a mexer com o banco de dados firebase
-//     // const dbRef = ref(db, "/ping");
+try {
 
-//     // const before = Date.now(); // Início da medição de latência
-//     // const snapshot = await get(dbRef);
-//     // const after = Date.now(); // Fim da medição de latência
-//     // const ping = after - before; // Valor da latência em milissegundos
+  // //Teste de como apreender a mexer com o banco de dados firebase
+  // const dbRef = ref(db, "/ping");
 
-//     // if ( !snapshot.exists() ) console.log("Dado não existente"); // Verificar se existe dados
+  // const before = Date.now(); // Início da medição de latência
+  // const snapshot = await get(dbRef);
+  // const after = Date.now(); // Fim da medição de latência
+  // const ping = after - before; // Valor da latência em milissegundos
+
+  // if ( !snapshot.exists() ) console.log("Dado não existente"); // Verificar se existe dados
     
-//     // const data = snapshot.val(); // Recuperação do valor do dado
-//     // console.log("Sucesso ao logar!");
-//     // console.log(`${data} ${ping}ms`);
+  // const data = snapshot.val(); // Recuperação do valor do dado
+  // console.log("Sucesso ao logar!");
+  // console.log(`${data} ${ping}ms`);
 
-
-//     //Teste de como ler os dados do banco de dados firebase 
-//     // const before = Date.now();
-//     // const data = await database.read("/ping");
-//     // const after = Date.now();
-//     // const ping = after - before;
+  // //Teste de como ler os dados do banco de dados firebase 
+  // const before = Date.now();
+  // const data = await database.read("/ping");
+  // const after = Date.now();
+  // const ping = after - before;
     
-//     // console.log("Sucesso ao logar na firebase!");
+  // console.log("Sucesso ao logar na firebase!");
 
-//     // if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
+  // if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
 
-//     // //Teste de como escrever os dados no banco de dados firebase
-//     // await database.write("/hello", "Hello, Firebase!");// /hello é o nó onde o dado será escrito a mensagem e "Hello, Firebase!" é o dado que será escrito
+  // //Teste de como escrever os dados no banco de dados firebase
+  // await database.write("/hello", "Hello, Firebase!");// /hello é o nó onde o dado será escrito a mensagem e "Hello, Firebase!" é o dado que será escrito
 
+  const dados = {
+    nome: "Ana Silva",
+    email: "ana@email.com",
+    perfil: {
+      tipo: "aluno",
+      criadoEm: "2025-11-13"
+    }
+  };
+
+  await database.write("/utilizadores/uid123", dados);
+
+  console.log("Dados escritos com sucesso!");
     
-    
-// } catch ( e ) {
-//     console.log("Erro ao logar na firebase:", e);
-// }
-// Função para mostrar mensagem
-function mostrarMensagem(texto) {
-  const elemento = document.getElementById("mensagem");
-  const novoElemento = document.createElement("p");
-  novoElemento.textContent = texto;
-  document.body.appendChild(novoElemento);
+} catch ( e ) {
+    console.log("Erro ao logar na firebase:", e);
 }
+// Função para mostrar mensagem
+// function mostrarMensagem(texto) {
+//   const elemento = document.getElementById("mensagem");
+//   const novoElemento = document.createElement("p");
+//   novoElemento.textContent = texto;
+//   document.body.appendChild(novoElemento);
+// }
 
-mostrarMensagem("Olá, esta é uma mensagem vinda do arquivo .mjs!");
+// mostrarMensagem("Olá, esta é uma mensagem vinda do arquivo .mjs!");
