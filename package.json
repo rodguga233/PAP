@@ -20,6 +20,6 @@
   "homepage": "https://github.com/rodguga233/PAP#readme",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "firebase": "^12.5.0"
+    "firebase": "^12.6.0"
   }
 }
