@@ -1,4 +1,4 @@
-import { get, set, ref, update, remove, push} from "firebase/database"; //funções que iram ser importantes: push e onValue (código essencial para cada coisa)
+import { get, set, ref, update, remove, push, onValue} from "firebase/database";
 import { db } from "./db.mjs";
 
 async function write(index, data) {
@@ -26,22 +26,37 @@ async function updateData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
     
     const dbRef = ref(db, index);
-    await update(dbRef, data);
+    await update(dbRef, data);//update é a função que atualiza o dado no diretorio especifico
 }
 
 async function removeData(index) {
     if (!index) throw new Error("Nó ou o dado informado não é válido ou não existe");
     
     const dbRef = ref(db, index);
-    await remove(dbRef);
+    await remove(dbRef);//remove é a função que remove o dado do diretorio especifico
 }
 
 async function addData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
     
     const dbRef = ref(db, index);
-    const listaNova = push(dbRef);
+    const listaNova = push(dbRef);//push é a função que cria um novo nó filho com um id unico
     await set(listaNova, data);
+
+    return listaNova.key;//esta linha vai retornar o id criado (.key mostra a chave unica do nó criado)
+}
+
+async function listen(index, dados) {
+    if (!index || !dados) throw new Error("Nó ou o callback informado não é válido ou não existe"); 
+
+    const dbRef = ref(db, index);
+    onValue(dbRef, (snapshot) => {
+        if (snapshot.exists()) {
+            dados(snapshot.val());
+        } else {
+            dados(null);
+        }
+    });
 }
 
 export const database = {
@@ -49,5 +64,6 @@ export const database = {
     read,
     updateData,
     removeData,
-    addData
+    addData,
+    listen
 }

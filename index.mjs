@@ -11,12 +11,20 @@ try {
 
   if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
   
+  const agora = new Date();
   const query = await database.addData("/mensagem",
     {
-      teste: "1234",
-      criado: Date.now(),
+      texto: "teste de mensagem",
+      Criado_em: agora.toLocaleString("pt-PT")
     }
   );
+
+  const no = "/mensagem/" + query;
+  console.log("Nó criado:", no);
+
+  await database.listen(no, (dados) => {
+    console.log("Dados atualizados:", dados);
+  });
     
 } catch ( e ) {
     console.log("Erro ao logar na firebase:", e);
