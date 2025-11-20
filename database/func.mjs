@@ -46,6 +46,7 @@ async function addData(index, data) {
     return listaNova.key;//esta linha vai retornar o id criado (.key mostra a chave unica do nó criado)
 }
 
+// funcao para mostrar atualizações em tempo real(ajuda do copilot)
 async function listen(index, dados) {
     if (!index || !dados) throw new Error("Nó ou o callback informado não é válido ou não existe"); 
 

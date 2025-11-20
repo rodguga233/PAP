@@ -54,15 +54,28 @@
     <body>
         <div class="container">
             <h1>Preenche os campos necessários</h1>
-            <form>
+            <form id="FormUser">
                 <label for="nome">Nome:</label>
-                <input type="text" name="nome" id="nome" placeholder="Nome" required>
+                <input type="text" name="nome" id="nome" placeholder="Nome" required />
 
                 <label for="email">email:</label>
-                <input type="email" name="email" id="email" placeholder="Email" required>
+                <input type="email" name="email" id="email" placeholder="Email" required />
                 
                 <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder="Password" required>
+                <input type="password" name="password" id="password" placeholder="Password" required />
+                <input type="checkbox" onclick="mostrar()">Mostrar Password</input>
+
+                <script>
+                    function mostrar() {
+                        var x = document.getElementById("password");
+
+                        if (x.type === "password") {
+                            x.type = "text";
+                        } else {
+                            x.type = "password";
+                        }
+                    }
+                </script>
 
                 <input type="submit" value="Passar">
             </form>
