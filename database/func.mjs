@@ -1,4 +1,4 @@
-import { get, set, ref, update, remove, push, onValue} from "firebase/database";
+import { get, set, ref, update, remove, push, onValue} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { db } from "./db.mjs";
 
 async function write(index, data) {
