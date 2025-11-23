@@ -1,8 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import {config } from "dotenv"; config({silent: true});
 import { getDatabase } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-
-const { apiKey, authDomain, databaseURL, projectId, storageBucket, messagingSenderId, appId } = process.env;
 
 const firebaseConfig = {
   apiKey: "AIzaSyAE21F1-D0rMoaRXroolMbNGO6ZJIZAutc",
