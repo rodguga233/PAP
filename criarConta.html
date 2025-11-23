@@ -59,13 +59,16 @@
     <body>
         <div class="container">
             <h1>Preenche os campos necessários</h1>
-            <form id="Login">
+            <form id="criarConta">
+                <label for="nome">Nome:</label>
+                <input type="text" name="nome" id="nome" placeholder="Nome" required />
+
                 <label for="email">Email:</label>
                 <input type="email" name="email" id="email" placeholder="Email" required />
                 
                 <label for="password">Password:</label>
                 <input type="password" name="password" id="password" placeholder="Password" required />
-                <input type="checkbox" onclick="mostrar()">Mostrar Password
+                <input type="checkbox" onclick="mostrar()" />Mostrar Password
 
                 <script>
                     function mostrar() {
@@ -79,12 +82,12 @@
                     }
                 </script>
 
-                <p><a href="criarConta.html">Criar Conta</a></p>
+                <p><a href="index.html">Login</a></p>
 
-                <input type="submit" value="Login">
+                <input type="submit" value="Criar Conta">
             </form>
 
-            <script type="module" src="./auntentica.mjs"></script>
+            <script type="module" src="./criarConta.mjs"></script>
         </div>
     </body>
 </html>

@@ -60,6 +60,12 @@ async function listen(index, dados) {
     });
 }
 
+//Codigo do listen 
+
+// database.listen(nome do no atualizado, (dados) => {
+//     console.log("Dados atualizados:", dados);
+// });
+
 export const database = {
     write,
     read,
