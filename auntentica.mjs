@@ -15,28 +15,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const pass = document.getElementById("password");
     
     console.log(" email:", email.value, " pass:", pass.value );
-
-      const before = Date.now();
-      const data = await database.read("/ping");
-      const after = Date.now();
-      const ping = after - before;
-            
-      console.log("Sucesso ao logar na firebase!");
-
-      if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
           
       if( form.id === "Login" ){
 
         console.log("ID do formulário correto.");
 
-        signInWithEmailAndPassword(auth, email.value, pass.value);//falta acabar o codigo de autenticação
+        signInWithEmailAndPassword(auth, email.value, pass.value)
+        .then( async (user) => {
+
+          setTimeout(() => {
+            window.location.href = "https://www.google.com";
+          }, 500);
+
+        }).catch( (error) => {
+
+          alert("Erro ao logar: " + error.message);
+
+          setTimeout(() => {
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+            window.location.reload();
+          }, 500);
+
+        });
         
       } else {
         console.log("Nome do formulário incorreto.");
       }
 
-      setTimeout(() => {
-        window.location.href = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.nationalgeographic.pt%2Fmeio-ambiente%2Fmacacos-negros-entre-iguaria-e-animais-estimacao-na-indonesia_1231&psig=AOvVaw0lUgjgXPsAvl1oP9lZRJ09&ust=1764021121198000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCIjj-_OgiZEDFQAAAAAdAAAAABAE";
-      }, 3000);
+      
   });
 });

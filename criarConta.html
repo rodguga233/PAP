@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Passar os dados</title>
+        <title>Criar a conta</title>
     </head>
 
     <style> 
@@ -43,11 +43,12 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"] {
+        input[type="submit"],
+        input[type="button"] {
             margin-top: 20px;
             width: 100%;
             padding: 10px;
-            background-color: #4CAF50;
+            background-color: #3564bb;
             border: none;
             color: white;
             font-weight: bold;
@@ -61,14 +62,14 @@
             <h1>Preenche os campos necessários</h1>
             <form id="criarConta">
                 <label for="nome">Nome:</label>
-                <input type="text" name="nome" id="nome" placeholder="Nome" required />
+                <input type="text" name="nome" id="nome" placeholder="Nome" required >
 
                 <label for="email">Email:</label>
-                <input type="email" name="email" id="email" placeholder="Email" required />
+                <input type="email" name="email" id="email" placeholder="Email" required >
                 
                 <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder="Password" required />
-                <input type="checkbox" onclick="mostrar()" />Mostrar Password
+                <input type="password" name="password" id="password" placeholder="Password" required >
+                <input type="checkbox" onclick="mostrar()" >Mostrar Password
 
                 <script>
                     function mostrar() {
@@ -82,9 +83,14 @@
                     }
                 </script>
 
-                <p><a href="index.html">Login</a></p>
+                <input type="submit" value="Criar Conta" >
+                <input type="submit" onclick="login()" value="Login" style="background-color: transparent; margin-top: 10px; border: 2px solid #3564bb; color: #3564bb;" >
 
-                <input type="submit" value="Criar Conta">
+                <script>
+                    function login(){
+                        window.location.href = "index.html";
+                    }
+                </script>
             </form>
 
             <script type="module" src="./criarConta.mjs"></script>

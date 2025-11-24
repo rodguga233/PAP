@@ -18,15 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const agora = new Date();
     
     console.log("nome:", nome.value, " email:", email.value, " pass:", pass.value );
-
-      const before = Date.now();
-      const data = await database.read("/ping");
-      const after = Date.now();
-      const ping = after - before;
-            
-      console.log("Sucesso ao logar na firebase!");
-
-      if( data ) console.log(`${data} ${ping}ms`); else console.log("Dado não existente");
           
       if( form.id === "criarConta" ){
 
@@ -51,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
           window.location.href = "index.html";
-        }, 3000);
+        }, 500);
       
         }).catch( (error) => {
 
@@ -62,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("email").value = "";
             document.getElementById("password").value = "";
             window.location.reload();
-          }, 5000);
+          }, 500);
 
         });
       } else {
