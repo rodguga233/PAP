@@ -24,25 +24,27 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("ID do formulário correto.");
 
         createUserWithEmailAndPassword(auth, email.value, pass.value)
-        .then( async (user) => {
+        .then( async (userCredential) => {
 
           alert("Utilizador criado com sucesso!");
-          
-          const query = await database.addData("/users",
-          {
-            nome: nome.value,
-            email: email.value,
-            pass: pass.value,
-            Criado_em: agora.toLocaleString("pt-PT")
-          }
-        );
-        
-        const no = "/users/" + query;
-        console.log("Nó criado:", no);
 
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 500);
+          const userID = userCredential.user.uid;
+          const query = await database.write("/users/" + userID,
+            {
+              userID: userID,
+              nome: nome.value,
+              email: email.value,
+              pass: pass.value,
+              Criado_em: agora.toLocaleString("pt-PT")
+            }
+          );
+        
+          const no = "/users/" + query;
+          console.log("Nó criado:", no);
+
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 500);
       
         }).catch( (error) => {
 

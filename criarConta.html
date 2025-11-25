@@ -43,14 +43,27 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"],
-        input[type="button"] {
+        input[type="submit"] {
             margin-top: 20px;
             width: 100%;
+            height: auto;
             padding: 10px;
             background-color: #3564bb;
             border: none;
             color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="button"] {
+            margin-top: 10px;
+            width: 100%;
+            height: auto;
+            padding: 10px;
+            background-color: transparent;
+            border: 2px solid #3564bb;
+            color: #3564bb;
             font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
@@ -84,13 +97,7 @@
                 </script>
 
                 <input type="submit" value="Criar Conta" >
-                <input type="submit" onclick="login()" value="Login" style="background-color: transparent; margin-top: 10px; border: 2px solid #3564bb; color: #3564bb;" >
-
-                <script>
-                    function login(){
-                        window.location.href = "index.html";
-                    }
-                </script>
+                <button type="button" onclick="window.location.href='index.html'" >Login </button>
             </form>
 
             <script type="module" src="./criarConta.mjs"></script>

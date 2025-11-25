@@ -56,13 +56,12 @@
         }
 
         button[type="button"] {
-            margin-top: 10px;
+            margin-top: 15px;
             width: 100%;
-            height: auto;
             padding: 10px;
-            background-color: transparent;
-            border: 2px solid #3564bb;
-            color: #3564bb;
+            background-color: #3564bb;
+            border: none;
+            color: white;
             font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
@@ -71,32 +70,11 @@
     
     <body>
         <div class="container">
-            <h1>Login</h1>
-            <form id="Login">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email" placeholder="Email" required >
-                
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder="Password" required >
-                <input type="checkbox" onclick="mostrar()">Mostrar Password
+            <h1>Todas as tarefas</h1>
+            <script type="module" src="./tarefas.mjs"></script>
 
-                <script>
-                    function mostrar() {
-                        var x = document.getElementById("password");
-
-                        if (x.type === "password") {
-                            x.type = "text";
-                        } else {
-                            x.type = "password";
-                        }
-                    }
-                </script>
-
-                <input type="submit" value="Login">
-                <button type="button" onclick="window.location.href='criarConta.html'">Criar Conta </button>
-            </form>
-
-            <script type="module" src="./auntentica.mjs"></script>
+            <button type="button" onclick="window.location.href='criarTarefas.html'">Criar tarefa</button>
+            <button type="button" onclick="window.location.href='logout.mjs'" style="background-color: red;">Logout</button>
         </div>
     </body>
 </html>

@@ -21,10 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("ID do formulário correto.");
 
         signInWithEmailAndPassword(auth, email.value, pass.value)
-        .then( async (user) => {
+        .then( async (userCredential) => {
 
           setTimeout(() => {
-            window.location.href = "https://www.google.com";
+            window.location.href = "tarefas.html";
           }, 500);
 
         }).catch( (error) => {
