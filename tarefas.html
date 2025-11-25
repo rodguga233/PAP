@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
+        <title>Tarefas</title>
     </head>
 
     <style> 
@@ -13,7 +13,7 @@
         .container {
             background-color: #ffffff;
             width: 350px;
-            margin: auto;
+            margin: auto; 
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
@@ -74,7 +74,23 @@
             <script type="module" src="./tarefas.mjs"></script>
 
             <button type="button" onclick="window.location.href='criarTarefas.html'">Criar tarefa</button>
-            <button type="button" onclick="window.location.href='logout.mjs'" style="background-color: red;">Logout</button>
+            <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
+
+            <!-- <script type="module">
+                import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+                import { auth } from "./database/db.mjs"; 
+
+                function logout() {
+                    signOut(auth).then(() => {
+                        console.log("Utilizador deslogado com sucesso.");
+                        window.location.href = "index.html";
+                    }).catch((error) => {
+                        console.error("Erro ao deslogar o utilizador: ", error);
+                    });
+                };
+
+                document.getElementById("logout").addEventListener("click", logout);
+            </script> -->
         </div>
     </body>
 </html>

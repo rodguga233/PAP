@@ -1,4 +1,3 @@
-import { database } from "./database/func.mjs";
 import { auth } from "./database/db.mjs"; 
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
