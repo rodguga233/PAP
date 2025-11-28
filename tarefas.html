@@ -72,39 +72,11 @@
         <div class="container">
             <h1>Todas as tarefas</h1>
 
-            <table id="tabelaTarefas" border="1" style="width:100%; margin-top:20px; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Conteúdo</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                </tbody>
-            </table>
-
+            <div id="tabela" style="width:auto"></div>
             <script type="module" src="./tarefas.mjs"></script>
 
             <button type="button" onclick="window.location.href='criarTarefas.html'">Criar tarefa</button>
             <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
-
-            <!-- <script type="module">
-                import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-                import { auth } from "./database/db.mjs"; 
-
-                function logout() {
-                    signOut(auth).then(() => {
-                        console.log("Utilizador deslogado com sucesso.");
-                        window.location.href = "index.html";
-                    }).catch((error) => {
-                        console.error("Erro ao deslogar o utilizador: ", error);
-                    });
-                };
-
-                document.getElementById("logout").addEventListener("click", logout);
-            </script> -->
         </div>
     </body>
 </html>

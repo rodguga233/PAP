@@ -16,14 +16,48 @@ document.addEventListener("DOMContentLoaded", () => {
       const tarefas = await database.read(`/tarefas/${userID}`);
       console.log("Tarefas carregadas:", tarefas);
 
-      tbody = document.querySelector("#tabelaTarefas tbody");
-      tbody.innerHTML = ""; // limpa a tabela para depoios inserir dados
+      
     
 
       if (tarefas) {
 
-        Object.entries(tarefas).forEach(gerarTabela);
+        //criar a tabela e adicinar os estilos em javascript
+        const tabela = document.createElement("table");
+        tabela.id = "tabelaTarefas";
+        tabela.style.width = "100%";
+        tabela.style.marginTop = "20px";
+        tabela.style.borderCollapse = "collapse";
+        tabela.border = "1";
+        
+        //criar o cabeçalho da tabela
+        const thead = document.createElement("thead");
+        const trHead = document.createElement("tr");
 
+        const thHead1 = document.createElement("th");
+        thHead1.textContent = "ID";
+
+        const thHead2 = document.createElement("th");
+        thHead2.textContent = "Conteúdo";
+
+        const thHead3 = document.createElement("th");
+        thHead3.textContent = "Estado";
+
+        trHead.appendChild(thHead1);
+        trHead.appendChild(thHead2);
+        trHead.appendChild(thHead3);
+        thead.appendChild(trHead);
+        tabela.appendChild(thead);
+
+
+        tbody = document.createElement("tbody");
+
+        Object.entries(tarefas).forEach(gerarTabela);
+        tabela.appendChild(tbody);
+
+        // adicionar o corpo à tabela
+        const divTabela = document.getElementById("tabela");
+        divTabela.innerHTML = ""; // limpa a div para evitar problemas de duplicar a tabela
+        divTabela.appendChild(tabela);
       } else {
         const tr = document.createElement("tr");
         const td = document.createElement("td");
