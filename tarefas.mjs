@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
-      const tarefas = await database.read(`/tarefas/${userID}`);
+      const tarefas = await database.read(`/tarefas/teste`);//${userID}
       console.log("Tarefas carregadas:", tarefas);
 
       
@@ -58,13 +58,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const divTabela = document.getElementById("tabela");
         divTabela.innerHTML = ""; // limpa a div para evitar problemas de duplicar a tabela
         divTabela.appendChild(tabela);
+
       } else {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 3;
-        td.textContent = "Nenhuma tarefa encontrada.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
+        const divTabela = document.getElementById("tabela");
+        divTabela.innerHTML = "";
+
+        const mensagem = document.createElement("p");
+        mensagem.textContent = "Nenhuma tarefa encontrada";
+        mensagem.style.textAlign = "center";
+        mensagem.style.fontWeight = "bold";
+        mensagem.style.marginTop = "20px";
+        mensagem.style.fontSize = "18px";
+
+        divTabela.appendChild(mensagem);
       }
     } else {
       alert("Nenhum utilizador autenticado. Redirecionando para a página de login.");
