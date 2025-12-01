@@ -43,18 +43,6 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"] {
-            margin-top: 20px;
-            width: 100%;
-            padding: 10px;
-            background-color: #3564bb;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
         button[type="button"] {
             margin-top: 15px;
             width: 100%;
@@ -75,7 +63,7 @@
             <div id="tabela" style="width:auto"></div>
             <script type="module" src="./tarefas.mjs"></script>
 
-            <button type="button" onclick="window.location.href='criarTarefas.html'">Criar tarefa</button>
+            <button type="button" id="criarTarefas" onclick="window.location.href = 'criarTarefas.html'" >Criar tarefa</button>
             <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
         </div>
     </body>

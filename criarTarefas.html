@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
+        <title>Tarefas</title>
     </head>
 
     <style> 
@@ -43,9 +43,20 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"],
-        input[type="button"] {
+        input[type="submit"] {
             margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #3564bb;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="button"] {
+            margin-top: 15px;
             width: 100%;
             padding: 10px;
             background-color: #3564bb;
@@ -59,38 +70,13 @@
     
     <body>
         <div class="container">
-            <h1>Login</h1>
-            <form id="Login">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email" placeholder="Email" required >
-                
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder="Password" required >
-                <input type="checkbox" onclick="mostrar()">Mostrar Password
+            <h1>Todas as tarefas</h1>
 
-                <script>
-                    function mostrar() {
-                        var x = document.getElementById("password");
+            <div id="tabela" style="width:auto"></div>
+            <script type="module" src="./tarefas.mjs"></script>
 
-                        if (x.type === "password") {
-                            x.type = "text";
-                        } else {
-                            x.type = "password";
-                        }
-                    }
-                </script>
-
-                <input type="submit" value="Login">
-                <input type="submit" onclick="criar_conta()" value="Criar Conta" style="background-color: transparent; margin-top: 10px; border: 2px solid #3564bb; color: #3564bb;" >
-
-                <script>
-                    function criar_conta(){
-                        window.location.href = "criarConta.html";
-                    }
-                </script>
-            </form>
-
-            <script type="module" src="./auntentica.mjs"></script>
+            <button type="button" onclick="window.location.href = 'criarTarefas.html'" >Criar tarefa</button>
+            <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
         </div>
     </body>
 </html>
