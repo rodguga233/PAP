@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         divTabela.appendChild(mensagem);
       }
     } else {
-      alert("Nenhum utilizador autenticado. Redirecionando para a página de login.");
+      alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
       setTimeout(() => {
         window.location.href = "index.html";
       }, 500);

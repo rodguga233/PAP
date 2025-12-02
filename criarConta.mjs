@@ -61,9 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         console.log("Nome do formulário incorreto.");
       }
-
-      
-      
   });
 });
 
