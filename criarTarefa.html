@@ -73,11 +73,11 @@
         <div class="container">
             <h1>Todas as tarefas</h1>
             <form id="criarTarefa">
-                <label for="titulo">Titulo:</label>
-                <input type="text" name="titulo" id="titulo" placeholder="Titulo" required >
+                <label for="tarefa">Tarefa</label>
+                <input type="text" name="tarefa" id="tarefa" placeholder="Tarefa" required >
 
-                <label for="categoria">Categoria:</label>
-                <select  name="categoria" id="categoria" required >
+                <label for="categoria">Categoria</label>
+                <select  name="categoria" id="categoria">
                     <option value="" disabled selected>Seleciona a categoria</option>
                     <option value="Trabalho">Trabalho</option>
                     <option value="Estudos">Estudos</option>
@@ -85,8 +85,8 @@
                     <option value="Casa">Casa</option>
                 </select>
                 
-                <label for="tarefa">Tarefa:</label>
-                <textarea id="tarefa" name="tarefa" rows="4" cols="50" placeholder="Descrição" style="resize: none;" required></textarea>
+                <label for="descricao">Descricao</label>
+                <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
 
                 <input type="submit" value="Criar Tarefa" >
             </form>

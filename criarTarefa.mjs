@@ -17,27 +17,51 @@ document.addEventListener("DOMContentLoaded", () => {
             form.addEventListener("submit", async (event) => {
 
                 event.preventDefault();
-                const titulo = document.getElementById("titulo");
+                const tarefa = document.getElementById("tarefa");
+                //verificar se a tarefa esta vazio
+                if (!tarefa.value.trim()) {
+                    alert("Por favor, insira uma tarefa válida.");
+                    return;
+                }
+
+                const descricao = document.getElementById("descricao");
+                //verificar se a descricao esta vazia
+                if (!descricao.value.trim()) {
+                    descricao.value = "Sem descrição";
+                }
+
                 const categoria = document.getElementById("categoria");
-                const tarefa = document.getElementById("tarefaword");
+                let categoriaValor = categoria.value.trim();
+
+                // Se não houver categoria escolhida, força "Sem categoria"
+                if (!categoriaValor || categoriaValor === "null") {
+                categoriaValor = "Sem categoria";
+                }
+
                 const agora = new Date();
                 
-                console.log("titulo:", titulo.value, " categoria:", categoria.value, " tarefa:", tarefa.value );
+                console.log("tarefa:", tarefa.value, " categoria:", categoria.value, " descricao:", descricao.value );
                     
                 if( form.id === "criarTarefa" ){
 
                     console.log("ID do formulário correto.");
 
-                    const query = await database.write("/tarefas/" + userID,{
-                        titulo: titulo.value,
-                        categoria: categoria.value,
+                    const query = await database.addData("/tarefas/" + userID,{
                         tarefa: tarefa.value,
+                        categoria: categoriaValor,
+                        descricao: descricao.value,
                         estado: "Pendente",
                         criado_em: agora.toLocaleString("pt-PT")
                     });
 
                     const no = "/tarefas/" + userID + "/" + query;
                     console.log("Nó criado:", no);
+
+                    alert("Tarefa criada com sucesso!");
+
+                    setTimeout(() => {
+                        window.location.href = "tarefas.html";
+                    }, 500);
 
                 } else {
                     console.log("Nome do formulário incorreto.");

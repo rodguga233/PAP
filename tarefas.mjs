@@ -13,11 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
-      const tarefas = await database.read(`/tarefas/teste`);//${userID}
+      const tarefas = await database.read(`/tarefas/${userID}`);
       console.log("Tarefas carregadas:", tarefas);
-
-      
-    
 
       if (tarefas) {
 
@@ -37,14 +34,23 @@ document.addEventListener("DOMContentLoaded", () => {
         thHead1.textContent = "ID";
 
         const thHead2 = document.createElement("th");
-        thHead2.textContent = "Conteúdo";
+        thHead2.textContent = "Tarefa";
 
         const thHead3 = document.createElement("th");
-        thHead3.textContent = "Estado";
+        thHead3.textContent = "Categoria";
+
+        const thHead4 = document.createElement("th");
+        thHead4.textContent = "Descrição";
+
+        const thHead5 = document.createElement("th");
+        thHead5.textContent = "Estado";
 
         trHead.appendChild(thHead1);
         trHead.appendChild(thHead2);
         trHead.appendChild(thHead3);
+        trHead.appendChild(thHead4);
+        trHead.appendChild(thHead5);
+
         thead.appendChild(trHead);
         tabela.appendChild(thead);
 
@@ -83,19 +89,29 @@ document.addEventListener("DOMContentLoaded", () => {
 function gerarTabela([id, tarefa]) {
   const tr = document.createElement("tr");
 
-  // Coluna ID (vai mostrar "conteudo")
+  // coluna do ID 
   const tdId = document.createElement("td");
   tdId.textContent = id;
   tr.appendChild(tdId);
 
-  // Coluna conteúdo (vai mostrar "Teste para ler a mensagem")
-  const tdConteudo = document.createElement("td");
-  tdConteudo.textContent = tarefa || "(sem conteúdo)";
-  tr.appendChild(tdConteudo);
+  // coluna do titulo
+  const tdTarefa = document.createElement("td");
+  tdTarefa.textContent = tarefa.tarefa || "sem título";
+  tr.appendChild(tdTarefa);
 
-  // Coluna estado (só se existir)
+  // coluna do categoria
+  const tdCategoria = document.createElement("td");
+  tdCategoria.textContent = tarefa.categoria || "sem categoria";
+  tr.appendChild(tdCategoria);
+
+  // coluna do conteudo
+  const tdDescricao = document.createElement("td");
+  tdDescricao.textContent = tarefa.descricao || "sem conteudo";
+  tr.appendChild(tdDescricao);
+
+  // coluna do estado
   const tdEstado = document.createElement("td");
-  tdEstado.textContent = tarefa.feito ? "Concluída" : "Pendente";
+  tdEstado.textContent = tarefa.estado || "Pendente";
   tr.appendChild(tdEstado);
 
   tbody.appendChild(tr);
