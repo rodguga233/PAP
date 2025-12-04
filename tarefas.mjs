@@ -49,11 +49,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const thHead5 = document.createElement("th");
         thHead5.textContent = "Estado";
 
+        const thHead6 = document.createElement("th");
+        thHead6.textContent = "Ações";
+
         trHead.appendChild(thHead1);
         trHead.appendChild(thHead2);
         trHead.appendChild(thHead3);
         trHead.appendChild(thHead4);
         trHead.appendChild(thHead5);
+        trHead.appendChild(thHead6);
 
         thead.appendChild(trHead);
         tabela.appendChild(thead);
@@ -122,7 +126,22 @@ function gerarTabela([id, tarefa]) {
   tdEstado.textContent = tarefa.estado || "Pendente";
   tr.appendChild(tdEstado);
 
-  //Coluna de ações (marcar como concluído, editar, eliminar) 
+  //Coluna de ações (editar)
+  const taAcoes = document.createElement("td");
+  taAcoes.style.textAlign = "center";
+
+  //fazer o botao e a funcao de abrir a pagina com o id da tarefa
+  const botaoEditar = document.createElement("button");
+  botaoEditar.textContent = "Editar";
+  botaoEditar.style.marginRight = "10px";
+  botaoEditar.style.backgroundColor = "blue"
+
+  botaoEditar.addEventListener("click", () => {
+    window.location.href = `editarTarefa.html?id=${id}`;
+  });
+
+  taAcoes.appendChild(botaoEditar);
+  tr.appendChild(taAcoes);
 
   tbody.appendChild(tr);
 };
