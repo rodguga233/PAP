@@ -26,13 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "tarefas.html";
           }, 500);
 
-        }).catch( (error) => {
+        }).catch( (error) => { 
 
-          alert("Erro ao logar: " + error.message);
+          if (error.code === 'auth/invalid-credential')
+            alert("Credenciais inválidas. Por favor, verifique o email e a password.");
 
           setTimeout(() => {
-            document.getElementById("email").value = "";
-            document.getElementById("password").value = "";
             window.location.reload();
           }, 500);
 

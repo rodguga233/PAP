@@ -47,15 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
           }, 500);
       
         }).catch( (error) => {
+          console.log(error.code);
 
-          alert("Erro ao criar o utilizador: " + error.message);
+          if (error.code === 'auth/email-already-in-use')
+            alert("O email ja esta a ser utilizador. Por favor, introduza outro email.");
 
           setTimeout(() => {
+            alert("Erro ao criar o utilizador: " + error.message);
             document.getElementById("nome").value = "";
             document.getElementById("email").value = "";
             document.getElementById("password").value = "";
             window.location.reload();
-          }, 500);
+          }, 5000);
 
         });
       } else {

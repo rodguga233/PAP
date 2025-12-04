@@ -28,6 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
         
         //criar o cabeçalho da tabela
         const thead = document.createElement("thead");
+        thead.style.height = "30px";
+        thead.style.backgroundColor = "#A9A9A9";
+        thead.style.color = "black";
+
         const trHead = document.createElement("tr");
 
         const thHead1 = document.createElement("th");
@@ -56,6 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         tbody = document.createElement("tbody");
+        tbody.style.textAlign = "left";
+        tbody.style.height = "25px";
+        tbody.style.backgroundColor = "#f2f2f2";
 
         Object.entries(tarefas).forEach(gerarTabela);
         tabela.appendChild(tbody);
@@ -86,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 function gerarTabela([id, tarefa]) {
   const tr = document.createElement("tr");
 
@@ -113,6 +121,8 @@ function gerarTabela([id, tarefa]) {
   const tdEstado = document.createElement("td");
   tdEstado.textContent = tarefa.estado || "Pendente";
   tr.appendChild(tdEstado);
+
+  //Coluna de ações (marcar como concluído, editar, eliminar) 
 
   tbody.appendChild(tr);
 };
