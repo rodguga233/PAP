@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 let categoriaValor = categoria.value.trim();
 
                 // Se não houver categoria escolhida, força "Sem categoria"
-                if (!categoriaValor || categoriaValor === "null") {
-                categoriaValor = "Sem categoria";
+                if (!categoriaValor || categoriaValor === "null" || categoriaValor === "Nenhuma") {
+                    categoriaValor = "Sem categoria";
                 }
 
                 const agora = new Date();

@@ -44,7 +44,7 @@
         }
 
         input[type="submit"] {
-            margin-top: 20px;
+            margin-top: 10px;
             width: 100%;
             height: auto;
             padding: 10px;
@@ -80,24 +80,63 @@
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" placeholder="Email" required >
                 
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="Password" required >
-                <input type="checkbox" onclick="mostrar()" >Mostrar Password
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" placeholder="Password" required >
+
+                <label for="password2">Confirmar password</label>
+                <input type="password" name="password2" id="password2" placeholder="Confirmar password" required >
+                <label id="error" style="color:red; font-size: small; display: none; font-weight:bold;">As passwords não coincidem</label>
+                <input type="checkbox" id="checkbox" onclick="mostrar()" style="margin-top: 25px;">Mostrar Password
 
                 <script>
-                    function mostrar() {
-                        var x = document.getElementById("password");
+                    const pass1 = document.getElementById("password1");
+                    const pass2 = document.getElementById("password2");
 
-                        if (x.type === "password") {
-                            x.type = "text";
+                    document.getElementById('password2').addEventListener('input', validar);
+
+                    function validar(){
+                        var criar = document.getElementById("criar");
+                        var error = document.getElementById("error");
+                        var check = document.getElementById("checkbox");
+
+                        if(pass2.value === ""){
+                            criar.disabled = false;
+                            criar.style.backgroundColor = "#3564bb";
+                            error.style.display = "none";
+                            check.style.marginTop = "25px";
+                            return;
+                        }
+
+                        if(pass1.value != pass2.value){
+                            criar.disabled = true;
+                            criar.style.backgroundColor = "#718fc7";
+                            error.style.display = "block";
+                            error.style.marginTop = "5px";
+                            check.style.marginTop = "5px";
+
                         } else {
-                            x.type = "password";
+                            criar.disabled = false;
+                            criar.style.backgroundColor = "#3564bb";
+                            error.style.display = "none";
+                            check.style.marginTop = "25px";
+                        }
+                    }
+                    
+                    function mostrar() {
+                        if (pass1.type === "password" && pass2.type === "password") {
+                            pass1.type = "text";
+                            pass2.type = "text";
+                        } else {
+                            pass1.type = "password";
+                            pass2.type = "password";
                         }
                     }
                 </script>
 
-                <input type="submit" value="Criar Conta" >
+                <input type="submit" id="criar" value="Criar Conta" >
                 <button type="button" onclick="window.location.href='index.html'" >Login </button>
+
+                
             </form>
 
             <script type="module" src="./criarConta.mjs"></script>

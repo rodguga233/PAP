@@ -8,24 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-        const userID = user.uid;
-        console.log("Utilizador autenticado:", userID);
+      const userID = user.uid;
+      console.log("Utilizador autenticado:", userID);
 
-        console.log("1");
-        console.log("2");
-        console.log("3");
+      const params = new URLSearchParams(window.location.search);
 
-        const params = new URLSearchParams(window.location.search);
-        console.log("parametros:", params);
+      const id = params.get("idTarefa");
+      console.log("ID:", id);
 
-        const id = params.get("id");
-        console.log("ID:", id);
+      const tarefa = await database.read(`/tarefas/${userID}/${id}`);
+      console.log("Tarefa carregada:", tarefa);
+
+      if (tarefa) {
+
+        document.getElementById("tarefa").value = tarefa.tarefa;
+        document.getElementById("categoria").value = tarefa.categoria;
+        document.getElementById("descricao").value = tarefa.descricao;
+
+      }
 
     } else {
-        alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 500);
+      alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
+      setTimeout(() => {
+          window.location.href = "index.html";
+      }, 500);
     }
   });
 });
