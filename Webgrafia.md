@@ -12,7 +12,7 @@ trabalhar com a função date:
 https://www.w3schools.com/jsref/jsref_tolocalestring.asp
 
 conseguir a ver a chave única criada pelo push:
-https://firebase.google.com/docs/database/admin/save-data?hl=pt-br#node.js _ 1
+https://firebase.google.com/docs/database/admin/save-data?hl=pt-br#node.js_1
 
 mostrar palavra-passe:
 https://www.w3schools.com/howto/howto_js_toggle_password.asp
