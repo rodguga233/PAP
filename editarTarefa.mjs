@@ -25,6 +25,30 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("categoria").value = tarefa.categoria;
         document.getElementById("descricao").value = tarefa.descricao;
 
+        if(tarefa.estado === "Pendente"){
+          const botaoEstado = document.createElement("button");
+          botaoEstado.type = "button";
+          botaoEstado.textContent = "Marcar como concluido";
+          botaoEstado.style.marginTop = "20px";
+          botaoEstado.style.backgroundColor = "#2D9B27";
+
+          //mudar o estado da tarefa para concluida
+          botaoEstado.addEventListener('click', async () =>{
+            try {
+              await database.updateData(`/tarefas/${userID}/${id}`, { estado: "Concluída" });
+              alert("Tarefa atualizada para concluída!");
+              window.location.href = "tarefas.html";
+
+            } catch (error) {
+              console.error("Erro ao atualizar tarefa:", error);
+              alert("Não foi possível atualizar a tarefa.");
+            }
+          });
+
+          const divBotao = document.getElementById("marcarEstado");
+          divBotao.innerHTML = "";
+          divBotao.appendChild(botaoEstado);
+        }
       }
 
     } else {

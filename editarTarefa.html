@@ -88,12 +88,12 @@
                 <label for="descricao">Descrição</label>
                 <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
 
-                <input type="submit" value="Guardar" >
+                <div id="marcarEstado" style="width: 100%;"></div>
+                <input type="submit" style="margin-top: 15px;" value="Guardar" >
+                <button type="button" onclick="window.location.href = 'tarefas.html'" style="background-color: red;">Cancelar</button>
             </form>
 
             <script type="module" src="./editarTarefa.mjs"></script>
-
-            <button type="button" id="logout" onclick="window.location.href = 'tarefas.html'" style="background-color: red;">Cancelar</button>
         </div>
     </body>
 </html>
