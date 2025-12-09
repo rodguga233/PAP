@@ -119,6 +119,7 @@ function gerarTabela([id, tarefa]) {
   // coluna do conteudo
   const tdDescricao = document.createElement("td");
   tdDescricao.textContent = tarefa.descricao;
+  tdDescricao
   tr.appendChild(tdDescricao);
 
   // coluna do estado
@@ -127,8 +128,8 @@ function gerarTabela([id, tarefa]) {
   tr.appendChild(tdEstado);
 
   //Coluna de ações (editar)
-  const taAcoes = document.createElement("td");
-  taAcoes.style.textAlign = "center";
+  const tdAcoes = document.createElement("td");
+  tdAcoes.style.textAlign = "center";
 
   //fazer o botao e a funcao de abrir a pagina com o id da tarefa
   const botaoEditar = document.createElement("button");
@@ -141,8 +142,20 @@ function gerarTabela([id, tarefa]) {
     window.location.href = `editarTarefa.html?idTarefa=${id}`;
   });
 
-  taAcoes.appendChild(botaoEditar);
-  tr.appendChild(taAcoes);
+  const botaoApagar = document.createElement("button");
+  botaoApagar.style.border = "1px solid black";
+  botaoApagar.style.backgroundColor = "#ed0e0eff";
+  botaoApagar.textContent = "X";
+  botaoApagar.style.color = "white";
+  botaoApagar.style.marginLeft = "10px";
+
+  botaoApagar.addEventListener("click", () => {
+    window.location.href = `apagartarefa.html?idTarefa=${id}`;
+  });
+
+  tdAcoes.appendChild(botaoEditar);
+  tdAcoes.appendChild(botaoApagar);
+  tr.appendChild(tdAcoes);
 
   tbody.appendChild(tr);
 };

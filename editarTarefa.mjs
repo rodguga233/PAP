@@ -5,52 +5,73 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/fi
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
+  let form = document.getElementById("editarTarefa");
+  let id;
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
+      //pegar o id atraves dos parametros no URL
       const params = new URLSearchParams(window.location.search);
+      id = params.get("idTarefa");
 
-      const id = params.get("idTarefa");
-      console.log("ID:", id);
+      if(id){
+        sessionStorage.setItem("idTarefa", id);
+      } else {
+        id = sessionStorage.getItem("idTarefa");
+      }
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+      console.log("ID da tarefa:", id);
 
       const tarefa = await database.read(`/tarefas/${userID}/${id}`);
       console.log("Tarefa carregada:", tarefa);
 
       if (tarefa) {
-
         document.getElementById("tarefa").value = tarefa.tarefa;
         document.getElementById("categoria").value = tarefa.categoria;
         document.getElementById("descricao").value = tarefa.descricao;
-
-        if(tarefa.estado === "Pendente"){
-          const botaoEstado = document.createElement("button");
-          botaoEstado.type = "button";
-          botaoEstado.textContent = "Marcar como concluido";
-          botaoEstado.style.marginTop = "20px";
-          botaoEstado.style.backgroundColor = "#2D9B27";
-
-          //mudar o estado da tarefa para concluida
-          botaoEstado.addEventListener('click', async () =>{
-            try {
-              await database.updateData(`/tarefas/${userID}/${id}`, { estado: "Concluída" });
-              alert("Tarefa atualizada para concluída!");
-              window.location.href = "tarefas.html";
-
-            } catch (error) {
-              console.error("Erro ao atualizar tarefa:", error);
-              alert("Não foi possível atualizar a tarefa.");
-            }
-          });
-
-          const divBotao = document.getElementById("marcarEstado");
-          divBotao.innerHTML = "";
-          divBotao.appendChild(botaoEstado);
+        
+        //adicionar uma checkbox 
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = "checkbox";
+        if(tarefa.estado === "Concluída"){
+          checkbox.checked = true;
         }
-      }
+        const marcarEstado = document.getElementById("marcarEstado");
+        marcarEstado.innerHTML = "Marcar como concluído:";
+        marcarEstado.appendChild(checkbox);
 
+        form.addEventListener("submit", async (event) => {
+
+          event.preventDefault();
+          const tarefaVal = document.getElementById("tarefa").value;
+          const categoriaVal = document.getElementById("categoria").value;
+          const descricaoVal = document.getElementById("descricao").value;
+          const checkboxVal = document.getElementById("checkbox");
+
+          const estadoVal = checkboxVal.checked ? "Concluído" : "Pendente";
+
+          try{
+
+            await database.updateData(`/tarefas/${userID}/${id}`, { 
+              estado: estadoVal, 
+              tarefa: tarefaVal,
+              categoria: categoriaVal,
+              descricao: descricaoVal
+            });
+            alert("Tarefa atualizada!");
+            window.location.href = "tarefas.html";
+
+          } catch (error) {
+            console.error("Erro ao atualizar tarefa:", error);
+            alert("Não foi possível atualizar a tarefa.");
+          }
+        });
+      }
     } else {
       alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
       setTimeout(() => {

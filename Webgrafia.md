@@ -54,3 +54,6 @@ https://firebase.google.com/docs/auth/flutter/errors?hl=pt-br
 
 pegar o id pelo o url:
 https://www.w3schools.com/nodejs/nodejs_url.asp
+
+trabalhar com o sessionstorage:
+https://www.w3schools.com/jsref/prop_win_sessionstorage.asp
