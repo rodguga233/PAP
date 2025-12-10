@@ -118,8 +118,11 @@ function gerarTabela([id, tarefa]) {
 
   // coluna do conteudo
   const tdDescricao = document.createElement("td");
-  tdDescricao.textContent = tarefa.descricao;
-  tdDescricao
+  let descricao_txt = tarefa.descricao;
+  if (descricao_txt.length > 35) { 
+    descricao_txt = descricao_txt.slice(0, 35) + "...";
+  }
+  tdDescricao.textContent = descricao_txt;
   tr.appendChild(tdDescricao);
 
   // coluna do estado
