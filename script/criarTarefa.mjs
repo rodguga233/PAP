@@ -1,5 +1,5 @@
-import { database } from "./database/func.mjs";
-import { auth } from "./database/db.mjs"; 
+import { database } from "../database/func.mjs";
+import { auth } from "../database/db.mjs"; 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 
@@ -33,9 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const categoria = document.getElementById("categoria");
                 let categoriaValor = categoria.value.trim();
 
-                // Se não houver categoria escolhida, força "Sem categoria"
-                if (!categoriaValor || categoriaValor === "null" || categoriaValor === "Nenhuma") {
-                    categoriaValor = "Sem categoria";
+                //caso nao seja escolhido categoria nenhuma
+                if (!categoriaValor || categoriaValor === "Nenhuma") {
+                    categoriaValor = "Nenhuma";
                 }
 
                 const agora = new Date();

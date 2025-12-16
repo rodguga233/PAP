@@ -1,7 +1,6 @@
-import { database } from "./database/func.mjs";
-import { auth } from "./database/db.mjs"; 
+import { database } from "../database/func.mjs";
+import { auth } from "../database/db.mjs"; 
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
 
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,37 +16,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const pass = document.getElementById("password1").value;
     const agora = new Date();
           
-    if( form.id === "criarConta" ){
+    if (form.id === "criarConta") {
 
       console.log("ID do formulário correto.");
 
-      createUserWithEmailAndPassword(auth, email.value, pass.value)
-      .then( async (userCredential) => {
+      createUserWithEmailAndPassword(auth, email, pass)
+      .then(async (userCredential) => {
 
         alert("Utilizador criado com sucesso!");
 
         const userID = userCredential.user.uid;
-        const query = await database.write("/users/" + userID,
-          {
-            userID: userID,
-            nome: nome.value,
-            email: email.value,
-            Criado_em: agora.toLocaleString("pt-PT")
-          }
-        );
-        
-        const no = "/users/" + query;
-        console.log("Nó criado:", no);
+        const query = await database.write("/users/" + userID, {
+          userID: userID,
+          nome: nome,
+          email: email,
+          Criado_em: agora.toLocaleString("pt-PT")
+        });
+
+        console.log("Nó criado:", "/users/" + query);
 
         setTimeout(() => {
           window.location.href = "index.html";
         }, 500);
       
-      }).catch( (error) => {
-        console.error("Erro ao criar utilizador:", error)
+      }).catch((error) => {
+        console.error("Erro ao criar utilizador:", error);
 
         if (error.code === 'auth/email-already-in-use')
-          alert("O email ja esta a ser utilizador. Por favor, introduza outro email.");
+          alert("O email já está a ser utilizado.");
 
         setTimeout(() => {
           alert("Erro ao criar o utilizador: " + error.message);
@@ -60,4 +56,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
