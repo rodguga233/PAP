@@ -1,70 +1,48 @@
-import { get, set, ref, update, remove, push, onValue} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { db } from "./db.mjs";
+import { database as db } from "./db.mjs";
 
+// Escrever dados
 async function write(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
-    
-    const dbRef = ref(db, index);// ref é uma funcao que cria uma referencia para escrever no diretorio especifico (neste caso o index)
-    await set(dbRef, data); //await é a funcao que espera o preenchimento da promise (promise é um valor de uma variavel do futuro)
-    // set é uma funcao que escreve o dado no diretorio especifico
+    await db.ref(index).set(data);
 }
 
+// Ler dados
 async function read(index) {
     if (!index) throw new Error("Nó informado não é válido ou não existe");
 
-    const dbRef = ref(db, index);
-    const snapshot = await get(dbRef);//get é a função que lê os dados uma vez
-
-    if (snapshot.exists()) { //snapshot é a forma de como a firebase vai me entregar os dados (.exist verifica se existe alguma coisa)
-        return snapshot.val();//.val vai retornar o valor
-    }
-
-    return null;
+    const snapshot = await db.ref(index).once("value");
+    return snapshot.exists() ? snapshot.val() : null;
 }
 
+// Atualizar dados
 async function updateData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
-    
-    const dbRef = ref(db, index);
-    await update(dbRef, data);//update é a função que atualiza o dado no diretorio especifico
+    await db.ref(index).update(data);
 }
 
+// Remover dados
 async function removeData(index) {
-    if (!index) throw new Error("Nó ou o dado informado não é válido ou não existe");
-    
-    const dbRef = ref(db, index);
-    await remove(dbRef);//remove é a função que remove o dado do diretorio especifico
+    if (!index) throw new Error("Nó informado não é válido ou não existe");
+    await db.ref(index).remove();
 }
 
+// Adicionar dados com ID automático
 async function addData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
-    
-    const dbRef = ref(db, index);
-    const listaNova = push(dbRef);//push é a função que cria um novo nó filho com um id unico
-    await set(listaNova, data);
 
-    return listaNova.key;//esta linha vai retornar o id criado (.key mostra a chave unica do nó criado)
+    const novaRef = db.ref(index).push();
+    await novaRef.set(data);
+    return novaRef.key;
 }
 
-// funcao para mostrar atualizações em tempo real(ajuda do copilot)
-async function listen(index, dados) {
-    if (!index || !dados) throw new Error("Nó ou o callback informado não é válido ou não existe"); 
+// Escutar alterações em tempo real
+async function listen(index, callback) {
+    if (!index || !callback) throw new Error("Nó ou o callback informado não é válido ou não existe");
 
-    const dbRef = ref(db, index);
-    onValue(dbRef, (snapshot) => {
-        if (snapshot.exists()) {
-            dados(snapshot.val());
-        } else {
-            dados(null);
-        }
+    db.ref(index).on("value", (snapshot) => {
+        callback(snapshot.exists() ? snapshot.val() : null);
     });
 }
-
-//Codigo do listen 
-
-// database.listen(nome do no atualizado, (dados) => {
-//     console.log("Dados atualizados:", dados);
-// });
 
 export const database = {
     write,
@@ -73,4 +51,4 @@ export const database = {
     removeData,
     addData,
     listen
-}
+};

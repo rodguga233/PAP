@@ -1,7 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getMessaging } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+// Importar Firebase 8 (API compatível)
+import "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
+import "https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js";
+import "https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js";
+import "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAE21F1-D0rMoaRXroolMbNGO6ZJIZAutc",
@@ -14,7 +15,10 @@ const firebaseConfig = {
   measurementId: "G-QLM25C7TH9"
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
-export const auth = getAuth(app);
-export const messaging = getMessaging(app);
+// Inicializar Firebase (versão 8)
+firebase.initializeApp(firebaseConfig);
+
+// Exportar serviços (versão 8)
+export const auth = firebase.auth();
+export const database = firebase.database();
+export const messaging = firebase.messaging();

@@ -1,14 +1,56 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { auth, messaging } from "../database/db.mjs"; 
 
-let tbody = null;// variavel global da tabela 
+let tbody = null;
 
+// ---- NOTIFICAÇÕES (Firebase 8) ----
+async function iniciarNotificacoes() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      console.log("O utilizador recusou as notificações");
+      return;
+    }
+
+    // Registar o service worker
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    console.log("Service Worker registado:", registration);
+
+    // Gerar token (Firebase 8)
+    const token = await messaging.getToken({
+      vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
+      serviceWorkerRegistration: registration
+    });
+
+    console.log("TOKEN FCM:", token);
+
+    const user = auth.currentUser;
+    if (user) {
+      await database.updateData(`/tokens/${user.uid}`, { token });
+    }
+
+    // Notificações em foreground
+    messaging.onMessage((payload) => {
+      const { notification } = payload;
+      new Notification(notification.title, {
+        body: notification.body
+      });
+    });
+
+  } catch (error) {
+    console.error("Erro ao iniciar notificações:", error);
+  }
+}
+
+// ---- DOM ----
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
 
-  onAuthStateChanged(auth, async (user) => {
+  iniciarNotificacoes();
+
+  // Firebase 8 → auth.onAuthStateChanged
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
@@ -17,51 +59,27 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Tarefas carregadas:", tarefas);
 
       if (tarefas) {
-
-        //criar a tabela e adicinar os estilos em javascript
         const tabela = document.createElement("table");
         tabela.id = "tabelaTarefas";
         tabela.style.width = "100%";
         tabela.style.marginTop = "20px";
         tabela.style.borderCollapse = "collapse";
         tabela.border = "1";
-        
-        //criar o cabeçalho da tabela
+
         const thead = document.createElement("thead");
         thead.style.height = "30px";
         thead.style.backgroundColor = "#A9A9A9";
         thead.style.color = "black";
 
         const trHead = document.createElement("tr");
-
-        const thHead1 = document.createElement("th");
-        thHead1.textContent = "ID";
-
-        const thHead2 = document.createElement("th");
-        thHead2.textContent = "Tarefa";
-
-        const thHead3 = document.createElement("th");
-        thHead3.textContent = "Categoria";
-
-        const thHead4 = document.createElement("th");
-        thHead4.textContent = "Descrição";
-
-        const thHead5 = document.createElement("th");
-        thHead5.textContent = "Estado";
-
-        const thHead6 = document.createElement("th");
-        thHead6.textContent = "Ações";
-
-        trHead.appendChild(thHead1);
-        trHead.appendChild(thHead2);
-        trHead.appendChild(thHead3);
-        trHead.appendChild(thHead4);
-        trHead.appendChild(thHead5);
-        trHead.appendChild(thHead6);
+        ["ID", "Tarefa", "Categoria", "Descrição", "Estado", "Ações"].forEach(text => {
+          const th = document.createElement("th");
+          th.textContent = text;
+          trHead.appendChild(th);
+        });
 
         thead.appendChild(trHead);
         tabela.appendChild(thead);
-
 
         tbody = document.createElement("tbody");
         tbody.style.textAlign = "left";
@@ -71,9 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.entries(tarefas).forEach(gerarTabela);
         tabela.appendChild(tbody);
 
-        // adicionar o corpo à tabela
         const divTabela = document.getElementById("tabela");
-        divTabela.innerHTML = ""; // limpa a div para evitar problemas de duplicar a tabela
+        divTabela.innerHTML = "";
         divTabela.appendChild(tabela);
 
       } else {
@@ -98,49 +115,40 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ---- Tabela ----
 function gerarTabela([id, tarefa]) {
   const tr = document.createElement("tr");
 
-  // coluna do ID 
   const tdId = document.createElement("td");
   tdId.textContent = id;
   tr.appendChild(tdId);
 
-  // coluna do titulo
   const tdTarefa = document.createElement("td");
   tdTarefa.textContent = tarefa.tarefa;
   tr.appendChild(tdTarefa);
 
-  // coluna do categoria
   const tdCategoria = document.createElement("td");
   tdCategoria.textContent = tarefa.categoria || "sem categoria";
   tr.appendChild(tdCategoria);
 
-  // coluna do conteudo
   const tdDescricao = document.createElement("td");
   let descricao_txt = tarefa.descricao;
-  if (descricao_txt.length > 35) { 
-    descricao_txt = descricao_txt.slice(0, 35) + "...";
-  }
+  if (descricao_txt.length > 35) descricao_txt = descricao_txt.slice(0, 35) + "...";
   tdDescricao.textContent = descricao_txt;
   tr.appendChild(tdDescricao);
 
-  // coluna do estado
   const tdEstado = document.createElement("td");
   tdEstado.textContent = tarefa.estado;
   tr.appendChild(tdEstado);
 
-  //Coluna de ações (editar)
   const tdAcoes = document.createElement("td");
   tdAcoes.style.textAlign = "center";
 
-  //fazer o botao e a funcao de abrir a pagina com o id da tarefa
   const botaoEditar = document.createElement("button");
   botaoEditar.style.border = "1px solid black";
   botaoEditar.style.backgroundColor = "#3457D5";
   botaoEditar.textContent = "Editar";
   botaoEditar.style.color = "white";
-
   botaoEditar.addEventListener("click", () => {
     window.location.href = `editarTarefa.html?idTarefa=${id}`;
   });
@@ -151,7 +159,6 @@ function gerarTabela([id, tarefa]) {
   botaoApagar.textContent = "X";
   botaoApagar.style.color = "white";
   botaoApagar.style.marginLeft = "10px";
-
   botaoApagar.addEventListener("click", () => {
     window.location.href = `apagartarefa.html?idTarefa=${id}`;
   });
@@ -161,4 +168,4 @@ function gerarTabela([id, tarefa]) {
   tr.appendChild(tdAcoes);
 
   tbody.appendChild(tr);
-};
+}
