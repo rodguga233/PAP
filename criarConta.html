@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Criar a conta</title>
+    </head>
+
+    <style> 
+        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
+            
+        .container {
+            background-color: #ffffff;
+            width: 350px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            margin-top: 10px;
+            margin-bottom: 0px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            margin-top: 10px;
+            width: 100%;
+            height: auto;
+            padding: 10px;
+            background-color: #3564bb;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="button"] {
+            margin-top: 10px;
+            width: 100%;
+            height: auto;
+            padding: 10px;
+            background-color: transparent;
+            border: 2px solid #3564bb;
+            color: #3564bb;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    
+    <body>
+        <div class="container">
+            <h1>Preenche os campos necessários</h1>
+            <form id="criarConta">
+                <label for="nome">Nome</label>
+                <input type="text" name="nome" id="nome" placeholder="Nome" required >
+
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" placeholder="Email" required >
+                
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" placeholder="Password" required >
+
+                <label for="password2">Confirmar password</label>
+                <input type="password" name="password2" id="password2" placeholder="Confirmar password" required >
+                <label id="error" style="color:red; font-size: small; display: none; font-weight:bold;">As passwords não coincidem</label>
+                <input type="checkbox" id="checkbox" onclick="mostrar()" style="margin-top: 25px;">Mostrar Password
+
+                <script>
+                    const pass1 = document.getElementById("password1");
+                    const pass2 = document.getElementById("password2");
+
+                    document.getElementById('password2').addEventListener('input', validar);
+
+                    function validar(){
+                        var criar = document.getElementById("criar");
+                        var error = document.getElementById("error");
+                        var check = document.getElementById("checkbox");
+
+                        if(pass2.value === ""){
+                            criar.disabled = false;
+                            criar.style.backgroundColor = "#3564bb";
+                            error.style.display = "none";
+                            check.style.marginTop = "25px";
+                            return;
+                        }
+
+                        if(pass1.value != pass2.value){
+                            criar.disabled = true;
+                            criar.style.backgroundColor = "#718fc7";
+                            error.style.display = "block";
+                            error.style.marginTop = "5px";
+                            check.style.marginTop = "5px";
+
+                        } else {
+                            criar.disabled = false;
+                            criar.style.backgroundColor = "#3564bb";
+                            error.style.display = "none";
+                            check.style.marginTop = "25px";
+                        }
+                    }
+                    
+                    function mostrar() {
+                        if (pass1.type === "password" && pass2.type === "password") {
+                            pass1.type = "text";
+                            pass2.type = "text";
+                        } else {
+                            pass1.type = "password";
+                            pass2.type = "password";
+                        }
+                    }
+                </script>
+
+                <input type="submit" id="criar" value="Criar Conta" >
+                <button type="button" onclick="window.location.href='index.html'" >Login </button>
+
+                
+            </form>
+
+            <script type="module" src="./script/criarConta.mjs"></script>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tarefas - editar</title>
+    </head>
+
+    <style> 
+        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
+            
+        .container {
+            background-color: #ffffff;
+            width: 350px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            margin-top: 10px;
+            margin-bottom: 0px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            font-family: Arial;
+        }
+
+        input[type="submit"] {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #3564bb;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="button"] {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background-color: #3564bb;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    
+    <body>
+        <div class="container">
+            <h1>Editar tarefa</h1>
+            <form id="editarTarefa">
+                <label for="tarefa">Tarefa</label>
+                <input type="text" name="tarefa" id="tarefa" placeholder="Tarefa" required >
+
+                <label for="categoria">Categoria</label>
+                <select  name="categoria" id="categoria">
+                    <option value="Nenhuma" selected>Sem categoria</option>
+                    <option value="Trabalho">Trabalho</option>
+                    <option value="Estudos">Estudos</option>
+                    <option value="Lazer">Lazer</option>
+                    <option value="Casa">Casa</option>
+                </select>
+                
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
+
+                <div id="marcarEstado" style="width: 100%;"></div>
+                <input type="submit" style="margin-top: 15px;" value="Guardar" >
+                <button type="button" onclick="window.location.href = 'tarefas.html'" style="background-color: red;">Cancelar</button>
+            </form>
+
+            <script type="module" src="./script/editarTarefa.mjs"></script>
+        </div>
+    </body>
+</html>

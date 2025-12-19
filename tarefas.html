@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tarefas</title>
+    </head>
+
+    <style> 
+        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
+            
+        .container {
+            background-color: #ffffff;
+            width: 950px;
+            margin: auto; 
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            margin-top: 10px;
+            margin-bottom: 0px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="button"] {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background-color: #3564bb;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    
+    <body>
+        <div class="container">
+            <h1>Todas as tarefas</h1>
+
+            <div id="tabela" style="width:auto"></div>
+            <script type="module" src="./script/tarefas.mjs"></script>
+
+            <button type="button" id="criarTarefas" onclick="window.location.href = 'criarTarefa.html'" >Criar tarefa</button>
+            <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
+        </div>
+    </body>
+</html>
