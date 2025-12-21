@@ -55,6 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
+      var utilizador = await database.read(`/users/${userID}/nome`);
+      console.log("Nome do utilizador:", utilizador);
+
+      utilizador = "Ola " + utilizador;
+
+      const divNome = document.getElementById("nome");
+      divNome.textContent = utilizador;
+
       const tarefas = await database.read(`/tarefas/${userID}`);
       console.log("Tarefas carregadas:", tarefas);
 

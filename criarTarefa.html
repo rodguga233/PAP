@@ -31,10 +31,11 @@
 
         label {
             display: block;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         input[type="text"],
+        input[type="datetime-local"],
         textarea,
         select {
             width: 100%;
@@ -84,8 +85,12 @@
                     <option value="Lazer">Lazer</option>
                     <option value="Casa">Casa</option>
                 </select>
+
+                <label for="dataHora">Lembrar em</label>
+                <input type="datetime-local" id="dataHora">
+                <label for="permissoes" id="permissoes" style="color:grey; font-size: small; display: none; font-weight:bold; margin-top: 0px;">Tem que habilitar as ntoficacoes</label>
                 
-                <label for="descricao">Descrição</label>
+                <label for="descricao" id="descricao" style="margin-top: 20px;">Descrição</label>
                 <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
 
                 <input type="submit" value="Criar Tarefa" >
