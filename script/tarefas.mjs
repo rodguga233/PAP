@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         thead.style.color = "black";
 
         const trHead = document.createElement("tr");
-        ["ID", "Tarefa", "Categoria", "Descrição", "Estado", "Ações"].forEach(text => {
+        ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
           const th = document.createElement("th");
           th.textContent = text;
           trHead.appendChild(th);
@@ -144,6 +144,23 @@ function gerarTabela([id, tarefa]) {
   if (descricao_txt.length > 35) descricao_txt = descricao_txt.slice(0, 35) + "...";
   tdDescricao.textContent = descricao_txt;
   tr.appendChild(tdDescricao);
+
+  const tdLembrete = document.createElement("td");
+  if (tarefa.lembrar === "Sem lembrete") {
+    tdLembrete.textContent = tarefa.lembrar;
+    tr.appendChild(tdLembrete);
+  } else {
+    let lembrete_txt = tarefa.lembrar;
+    lembrete_txt = new Date(lembrete_txt).toLocaleString("pt-PT", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    tdLembrete.textContent = lembrete_txt;
+    tr.appendChild(tdLembrete);
+  }
 
   const tdEstado = document.createElement("td");
   tdEstado.textContent = tarefa.estado;

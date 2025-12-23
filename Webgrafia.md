@@ -57,3 +57,6 @@ https://www.w3schools.com/nodejs/nodejs_url.asp
 
 trabalhar com o sessionstorage:
 https://www.w3schools.com/jsref/prop_win_sessionstorage.asp
+
+mexer com o toLocaleString (options)
+https://www.w3schools.com/jsref/jsref_tolocaledatestring.asp

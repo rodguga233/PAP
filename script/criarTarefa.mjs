@@ -44,12 +44,12 @@ async function iniciarNotificacoes() {
 }
 
 console.clear();
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("DOM carregado com sucesso!!!");
   const form = document.getElementById("criarTarefa");
 
-  iniciarNotificacoes();
+  await iniciarNotificacoes();
 
   // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
@@ -57,41 +57,40 @@ document.addEventListener("DOMContentLoaded", () => {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
-      const descricao = document.getElementById("descricao");
-
       if(noti === "denied"){
         document.getElementById("dataHora").disabled = true;
         document.getElementById("permissoes").style.display = "flex";
-        document.getElementById("descricao").style.marginTop = "4px";
+        document.getElementById("descricaoLabel").style.marginTop = "4px";
       }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const tarefa = document.getElementById("tarefa");
-        if (!tarefa.value.trim()) {
+        const tarefa = document.getElementById("tarefa").value;
+        if (!tarefa.trim()) {
           alert("Por favor, insira uma tarefa válida.");
           return;
         }
 
-        
-        if (!descricao.value.trim()) {
-          descricao.value = "Sem descrição";
+        let lembrete = document.getElementById("dataHora").value;
+        if (!lembrete) {
+          lembrete = "Sem lembrete";
         }
 
-        const categoria = document.getElementById("categoria");
-        let categoriaValor = categoria.value.trim();
-
-        if (!categoriaValor || categoriaValor === "Nenhuma") {
-          categoriaValor = "Nenhuma";
+        let descricao = document.getElementById("descricao").value;
+        if (!descricao.trim()) {
+          descricao = "Sem descrição";
         }
+
+        const categoria = document.getElementById("categoria").value.trim();
 
         const agora = new Date();
 
         console.log(
-          "tarefa:", tarefa.value,
-          "categoria:", categoriaValor,
-          "descricao:", descricao.value
+          "tarefa:", tarefa,
+          "lembrete:", lembrete,
+          "categoria:", categoria,
+          "descricao:", descricao,
         );
 
         if (form.id === "criarTarefa") {
@@ -99,9 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("ID do formulário correto.");
 
           const query = await database.addData(`/tarefas/${userID}`, {
-            tarefa: tarefa.value,
-            categoria: categoriaValor,
-            descricao: descricao.value,
+            tarefa: tarefa,
+            categoria: categoria,
+            descricao: descricao,
+            lembrar: lembrete,
             estado: "Pendente",
             criado_em: agora.toLocaleString("pt-PT")
           });

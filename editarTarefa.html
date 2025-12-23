@@ -35,6 +35,7 @@
         }
 
         input[type="text"],
+        input[type="datetime-local"],
         textarea,
         select {
             width: 100%;
@@ -84,8 +85,12 @@
                     <option value="Lazer">Lazer</option>
                     <option value="Casa">Casa</option>
                 </select>
-                
-                <label for="descricao">Descrição</label>
+
+                <label for="dataHora">Lembrar em</label>
+                <input type="datetime-local" id="dataHora">
+                <label for="permissoes" id="permissoes" style="color:grey; font-size: small; display: none; font-weight:bold; margin-top: 0px;">Tem que habilitar as notificações</label>
+
+                <label for="descricao" id="descricaoLabel" style="margin-top: 20px;">Descrição</label>
                 <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
 
                 <div id="marcarEstado" style="width: 100%;"></div>

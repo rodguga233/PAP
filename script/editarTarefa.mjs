@@ -1,17 +1,67 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
+import { auth, messaging } from "../database/db.mjs"; 
+
+let noti= null;
+
+// ---- NOTIFICAÇÕES (Firebase 8) ----
+async function iniciarNotificacoes() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      console.log("O utilizador recusou as notificações");
+      noti = "denied";
+      return;
+    }
+
+    // Registar o service worker
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    console.log("Service Worker registado:", registration);
+
+    // Gerar token (Firebase 8)
+    const token = await messaging.getToken({
+      vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
+      serviceWorkerRegistration: registration
+    });
+
+    console.log("TOKEN FCM:", token);
+
+    const user = auth.currentUser;
+    if (user) {
+      await database.updateData(`/tokens/${user.uid}`, { token });
+    }
+
+    // Notificações em foreground
+    messaging.onMessage((payload) => {
+      const { notification } = payload;
+      new Notification(notification.title, {
+        body: notification.body
+      });
+    });
+
+  } catch (error) {
+    console.error("Erro ao iniciar notificações:", error);
+  }
+}
 
 console.clear();
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM carregado com sucesso!!!");
   let form = document.getElementById("editarTarefa");
   let id;
+
+  await iniciarNotificacoes();
 
   // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
+
+      if(noti === "denied"){
+        document.getElementById("dataHora").disabled = true;
+        document.getElementById("permissoes").style.display = "flex";
+        document.getElementById("descricaoLabel").style.marginTop = "4px";
+      }
 
       // pegar o id através dos parâmetros no URL
       const params = new URLSearchParams(window.location.search);
@@ -33,7 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("tarefa").value = tarefa.tarefa;
         document.getElementById("categoria").value = tarefa.categoria;
         document.getElementById("descricao").value = tarefa.descricao;
-
+        
+        if(noti === "denied"){
+          document.getElementById("dataHora").disabled = true;
+        } else {
+          if(tarefa.lembrar !== "Sem lembrete"){
+            document.getElementById("dataHora").value = tarefa.lembrar;
+          }
+        }
+        
         // adicionar checkbox
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -53,6 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
           const categoriaVal = document.getElementById("categoria").value;
           const descricaoVal = document.getElementById("descricao").value;
           const checkboxVal = document.getElementById("checkbox");
+          let lembreteVal;
+
+          if (noti === "denied") {
+            lembreteVal = "Sem lembrete";
+          } else {
+            lembreteVal = document.getElementById("dataHora").value;
+          }
 
           const estadoVal = checkboxVal.checked ? "Concluído" : "Pendente";
 
@@ -61,7 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
               estado: estadoVal,
               tarefa: tarefaVal,
               categoria: categoriaVal,
-              descricao: descricaoVal
+              descricao: descricaoVal,
+              lembrar: lembreteVal,
             });
 
             alert("Tarefa atualizada!");
