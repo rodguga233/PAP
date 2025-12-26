@@ -3,38 +3,40 @@ import { auth, messaging } from "../database/db.mjs";
 
 let tbody = null;
 
-// ---- NOTIFICAÇÕES (Firebase 8) ----
-async function iniciarNotificacoes() {
+async function pedirPermissao(userID) {
+  const permission = await Notification.requestPermission();
+
+  if (permission === "granted") {
+    await database.updateData(`/tokens/${userID}`, { status: "enabled" });
+    iniciarNotificacoes(userID);
+  } else {
+    await database.updateData(`/tokens/${userID}`, { status: "disabled", token: null });
+    console.log("Utilizador recusou notificações.");
+  }
+}
+
+async function iniciarNotificacoes(userID) {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.log("O utilizador recusou as notificações");
+    const dados = await database.read(`/tokens/${userID}`);
+
+    if (!dados || dados.status !== "enabled") {
+      console.log("Notificações desativadas para este utilizador.");
       return;
     }
 
-    // Registar o service worker
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log("Service Worker registado:", registration);
+    await navigator.serviceWorker.ready;
 
-    // Gerar token (Firebase 8)
     const token = await messaging.getToken({
       vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
       serviceWorkerRegistration: registration
     });
 
-    console.log("TOKEN FCM:", token);
+    await database.updateData(`/tokens/${userID}`, { token });
 
-    const user = auth.currentUser;
-    if (user) {
-      await database.updateData(`/tokens/${user.uid}`, { token });
-    }
-
-    // Notificações em foreground
     messaging.onMessage((payload) => {
       const { notification } = payload;
-      new Notification(notification.title, {
-        body: notification.body
-      });
+      new Notification(notification.title, { body: notification.body });
     });
 
   } catch (error) {
@@ -42,86 +44,118 @@ async function iniciarNotificacoes() {
   }
 }
 
+
 // ---- DOM ----
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
 
-  iniciarNotificacoes();
-
-  // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userID = user.uid;
-      console.log("Utilizador autenticado:", userID);
+    if (!user) {
+      alert("Nenhum utilizador autenticado. Faça o login.");
+      return (window.location.href = "index.html");
+    }
 
-      var utilizador = await database.read(`/users/${userID}/nome`);
-      console.log("Nome do utilizador:", utilizador);
+    const userID = user.uid;
+    console.log("Utilizador autenticado:", userID);
 
-      utilizador = "Ola " + utilizador;
+    // --- BOTÃO FLUTUANTE ---
+    const botao = document.getElementById("toggleNotificacoes");
 
-      const divNome = document.getElementById("nome");
-      divNome.textContent = utilizador;
+    let dados = await database.read(`/tokens/${userID}`);
 
-      const tarefas = await database.read(`/tarefas/${userID}`);
-      console.log("Tarefas carregadas:", tarefas);
+    if (!dados) {
+      await database.updateData(`/tokens/${userID}`, {
+        status: "pending",
+        token: null
+      });
+      dados = { status: "pending" };
+    }
 
-      if (tarefas) {
-        const tabela = document.createElement("table");
-        tabela.id = "tabelaTarefas";
-        tabela.style.width = "100%";
-        tabela.style.marginTop = "20px";
-        tabela.style.borderCollapse = "collapse";
-        tabela.border = "1";
-
-        const thead = document.createElement("thead");
-        thead.style.height = "30px";
-        thead.style.backgroundColor = "#A9A9A9";
-        thead.style.color = "black";
-
-        const trHead = document.createElement("tr");
-        ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
-          const th = document.createElement("th");
-          th.textContent = text;
-          trHead.appendChild(th);
-        });
-
-        thead.appendChild(trHead);
-        tabela.appendChild(thead);
-
-        tbody = document.createElement("tbody");
-        tbody.style.textAlign = "left";
-        tbody.style.height = "25px";
-        tbody.style.backgroundColor = "#f2f2f2";
-
-        Object.entries(tarefas).forEach(gerarTabela);
-        tabela.appendChild(tbody);
-
-        const divTabela = document.getElementById("tabela");
-        divTabela.innerHTML = "";
-        divTabela.appendChild(tabela);
-
-      } else {
-        const divTabela = document.getElementById("tabela");
-        divTabela.innerHTML = "";
-
-        const mensagem = document.createElement("p");
-        mensagem.textContent = "Nenhuma tarefa encontrada";
-        mensagem.style.textAlign = "center";
-        mensagem.style.fontWeight = "bold";
-        mensagem.style.marginTop = "20px";
-        mensagem.style.fontSize = "18px";
-
-        divTabela.appendChild(mensagem);
-      }
+    // Atualizar texto do botão
+    if (dados.status === "enabled") {
+      botao.textContent = "Notificações: ON";
+      iniciarNotificacoes(userID);
     } else {
-      alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
+      botao.textContent = "Notificações: OFF";
+    }
+
+    // Clique no botão
+    botao.onclick = async () => {
+      const dadosAtual = await database.read(`/tokens/${userID}`);
+
+      if (dadosAtual.status === "enabled") {
+        await database.updateData(`/tokens/${userID}`, {
+          status: "disabled",
+          token: null
+        });
+        botao.textContent = "Notificações: OFF";
+        console.log("Notificações desativadas.");
+      } else {
+        console.log("A pedir permissão ao utilizador...");
+        pedirPermissao(userID);
+        botao.textContent = "Notificações: ON";
+      }
+    };
+
+    // --- RESTO DO TEU CÓDIGO ---
+    var utilizador = await database.read(`/users/${userID}/nome`);
+    utilizador = "Ola " + utilizador;
+    document.getElementById("nome").textContent = utilizador;
+
+    const tarefas = await database.read(`/tarefas/${userID}`);
+
+    if (tarefas) {
+      const tabela = document.createElement("table");
+      tabela.id = "tabelaTarefas";
+      tabela.style.width = "100%";
+      tabela.style.marginTop = "20px";
+      tabela.style.borderCollapse = "collapse";
+      tabela.border = "1";
+
+      const thead = document.createElement("thead");
+      thead.style.height = "30px";
+      thead.style.backgroundColor = "#A9A9A9";
+      thead.style.color = "black";
+
+      const trHead = document.createElement("tr");
+      ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        trHead.appendChild(th);
+      });
+
+      thead.appendChild(trHead);
+      tabela.appendChild(thead);
+
+      tbody = document.createElement("tbody");
+      tbody.style.textAlign = "left";
+      tbody.style.height = "25px";
+      tbody.style.backgroundColor = "#f2f2f2";
+
+      Object.entries(tarefas).forEach(gerarTabela);
+      tabela.appendChild(tbody);
+
+      const divTabela = document.getElementById("tabela");
+      divTabela.innerHTML = "";
+      divTabela.appendChild(tabela);
+
+    } else {
+      const divTabela = document.getElementById("tabela");
+      divTabela.innerHTML = "";
+
+      const mensagem = document.createElement("p");
+      mensagem.textContent = "Nenhuma tarefa encontrada";
+      mensagem.style.textAlign = "center";
+      mensagem.style.fontWeight = "bold";
+      mensagem.style.marginTop = "20px";
+      mensagem.style.fontSize = "18px";
+
+      divTabela.appendChild(mensagem);
     }
   });
 });
+
 
 // ---- Tabela ----
 function gerarTabela([id, tarefa]) {
