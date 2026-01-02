@@ -60,3 +60,9 @@ https://www.w3schools.com/jsref/prop_win_sessionstorage.asp
 
 mexer com o toLocaleString (options)
 https://www.w3schools.com/jsref/jsref_tolocaledatestring.asp
+
+trabalhar com a parte de mandar emails(o essencial)
+https://www.twilio.com/docs/sendgrid/for-developers/sending-email/quickstart-nodejs?utm_source=copilot.com
+https://firebase.google.com/docs/database/admin/start?utm_source=copilot.com&hl=pt-br
+https://firebase.google.com/docs/functions/schedule-functions?utm_source=copilot.com&hl=pt-br
+https://firebase.google.com/docs/cli?utm_source=copilot.com&hl=pt-br#mac-linux-npm

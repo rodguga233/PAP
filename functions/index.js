@@ -5,7 +5,6 @@ const sgMail = require("@sendgrid/mail");
 
 admin.initializeApp();
 
-// Secret do SendGrid
 const SENDGRID_KEY = defineSecret("SENDGRID_KEY");
 
 exports.enviarEmailsLembretes = onSchedule(
