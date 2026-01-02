@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
             userID: userID,
             nome: nome,
             email: email,
-            Criado_em: agora.toLocaleString("pt-PT")
+            Criado_em: agora.toLocaleString("pt-PT"),
+            notificacoes: false,
           });
 
           console.log("Nó criado:", `/users/${userID}`);

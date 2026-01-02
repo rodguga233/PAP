@@ -1,51 +1,8 @@
 import { database } from "../database/func.mjs";
-import { auth, messaging } from "../database/db.mjs"; 
+import { auth } from "../database/db.mjs"; 
 
 let tbody = null;
 
-async function pedirPermissao(userID) {
-  const permission = await Notification.requestPermission();
-
-  if (permission === "granted") {
-    await database.updateData(`/tokens/${userID}`, { status: "enabled" });
-    iniciarNotificacoes(userID);
-  } else {
-    await database.updateData(`/tokens/${userID}`, { status: "disabled", token: null });
-    console.log("Utilizador recusou notificações.");
-  }
-}
-
-async function iniciarNotificacoes(userID) {
-  try {
-    const dados = await database.read(`/tokens/${userID}`);
-
-    if (!dados || dados.status !== "enabled") {
-      console.log("Notificações desativadas para este utilizador.");
-      return;
-    }
-
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    await navigator.serviceWorker.ready;
-
-    const token = await messaging.getToken({
-      vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
-      serviceWorkerRegistration: registration
-    });
-
-    await database.updateData(`/tokens/${userID}`, { token });
-
-    messaging.onMessage((payload) => {
-      const { notification } = payload;
-      new Notification(notification.title, { body: notification.body });
-    });
-
-  } catch (error) {
-    console.error("Erro ao iniciar notificações:", error);
-  }
-}
-
-
-// ---- DOM ----
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
@@ -59,46 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const userID = user.uid;
     console.log("Utilizador autenticado:", userID);
 
-    // --- BOTÃO FLUTUANTE ---
-    const botao = document.getElementById("toggleNotificacoes");
-
-    let dados = await database.read(`/tokens/${userID}`);
-
-    if (!dados) {
-      await database.updateData(`/tokens/${userID}`, {
-        status: "pending",
-        token: null
-      });
-      dados = { status: "pending" };
-    }
-
-    // Atualizar texto do botão
-    if (dados.status === "enabled") {
-      botao.textContent = "Notificações: ON";
-      iniciarNotificacoes(userID);
-    } else {
-      botao.textContent = "Notificações: OFF";
-    }
-
-    // Clique no botão
-    botao.onclick = async () => {
-      const dadosAtual = await database.read(`/tokens/${userID}`);
-
-      if (dadosAtual.status === "enabled") {
-        await database.updateData(`/tokens/${userID}`, {
-          status: "disabled",
-          token: null
-        });
-        botao.textContent = "Notificações: OFF";
-        console.log("Notificações desativadas.");
-      } else {
-        console.log("A pedir permissão ao utilizador...");
-        pedirPermissao(userID);
-        botao.textContent = "Notificações: ON";
-      }
-    };
-
-    // --- RESTO DO TEU CÓDIGO ---
     var utilizador = await database.read(`/users/${userID}/nome`);
     utilizador = "Ola " + utilizador;
     document.getElementById("nome").textContent = utilizador;
@@ -157,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ---- Tabela ----
+// tabela
 function gerarTabela([id, tarefa]) {
   const tr = document.createElement("tr");
 

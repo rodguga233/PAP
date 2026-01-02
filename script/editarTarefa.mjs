@@ -1,55 +1,13 @@
 import { database } from "../database/func.mjs";
-import { auth, messaging } from "../database/db.mjs"; 
+import { auth } from "../database/db.mjs"; 
 
 let noti= null;
-
-// ---- NOTIFICAÇÕES (Firebase 8) ----
-async function iniciarNotificacoes() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.log("O utilizador recusou as notificações");
-      noti = "denied";
-      return;
-    }
-
-    // Registar o service worker
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log("Service Worker registado:", registration);
-
-    // Gerar token (Firebase 8)
-    const token = await messaging.getToken({
-      vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
-      serviceWorkerRegistration: registration
-    });
-
-    console.log("TOKEN FCM:", token);
-
-    const user = auth.currentUser;
-    if (user) {
-      await database.updateData(`/tokens/${user.uid}`, { token });
-    }
-
-    // Notificações em foreground
-    messaging.onMessage((payload) => {
-      const { notification } = payload;
-      new Notification(notification.title, {
-        body: notification.body
-      });
-    });
-
-  } catch (error) {
-    console.error("Erro ao iniciar notificações:", error);
-  }
-}
 
 console.clear();
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM carregado com sucesso!!!");
   let form = document.getElementById("editarTarefa");
   let id;
-
-  await iniciarNotificacoes();
 
   // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
