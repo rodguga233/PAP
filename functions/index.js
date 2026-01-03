@@ -42,6 +42,7 @@ exports.enviarEmailsLembretes = onSchedule(
 
         if (!tarefa.lembrar || tarefa.lembrar === "Sem lembrete") continue;
         if (tarefa.notificado === true) continue;
+        if (tarefa.estado !== "Pendente") continue;
 
         const horaLembrete = new Date(tarefa.lembrar).getTime();
         if (isNaN(horaLembrete)) continue;
