@@ -33,6 +33,8 @@ exports.enviarEmailsLembretes = onSchedule(
       const email = userData?.email;
       const nome = userData?.nome;
 
+      if(userData.notificacoes === false) continue;
+
       if (!email) continue;
 
       for (const tarefaID in tarefas) {

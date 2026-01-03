@@ -66,3 +66,6 @@ https://www.twilio.com/docs/sendgrid/for-developers/sending-email/quickstart-nod
 https://firebase.google.com/docs/database/admin/start?utm_source=copilot.com&hl=pt-br
 https://firebase.google.com/docs/functions/schedule-functions?utm_source=copilot.com&hl=pt-br
 https://firebase.google.com/docs/cli?utm_source=copilot.com&hl=pt-br#mac-linux-npm
+
+mexer com o continue
+https://www.w3schools.com/jsref/jsref_continue.asp?utm_source=copilot.com

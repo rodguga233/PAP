@@ -7,20 +7,34 @@ console.clear();
 document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("DOM carregado com sucesso!!!");
+  let form = document.getElementById("criarTarefa");
 
-  // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
-      const form = document.getElementById("criarTarefa");
+      
+      // ler o estado das notificações
+      database.listen(`/users/${userID}/notificacoes`, (valor) => {
+          noti = valor;
 
-      if(noti === "denied"){
-        document.getElementById("dataHora").disabled = true;
-        document.getElementById("permissoes").style.display = "flex";
-        document.getElementById("descricaoLabel").style.marginTop = "4px";
-      }
+          const dataHora = document.getElementById("dataHora");
+          const permissoes = document.getElementById("permissoes");
+          const descricaoLabel = document.getElementById("descricaoLabel");
 
+          if (noti === false) {
+              dataHora.disabled = true;
+              dataHora.style.opacity = "0.5";
+              permissoes.style.display = "flex";
+              descricaoLabel.style.marginTop = "4px";
+          } else {
+              dataHora.disabled = false;
+              dataHora.style.opacity = "1";
+              permissoes.style.display = "none";
+              descricaoLabel.style.marginTop = "20px";
+          }
+      });
+      
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 

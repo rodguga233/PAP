@@ -1,23 +1,22 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
+import { auth } from "../database/db.mjs";
 
 const botao = document.getElementById("toggleNotificacoes");
 
-auth.onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged(async (user) => {
     if (!user) return;
 
-    const userRef = ref(db, `users/${user.uid}/notificacoesAtivas`);
-    const snap = await get(userRef);
+    const index = `users/${user.uid}/notificacoes`;
 
-    let estado = snap.exists() ? snap.val() : false;
+    const estadoAtual = await database.read(index);
+    let estado = estadoAtual ?? false;
 
-    // Atualiza o botão ao carregar a página
     atualizarBotao(estado);
 
     botao.addEventListener("click", async () => {
-        estado = !estado; // alterna ON/OFF
+        estado = !estado;
 
-        await database.update(userRef, estado);
+        await database.write(index, estado);
 
         atualizarBotao(estado);
     });

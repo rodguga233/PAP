@@ -9,17 +9,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   let form = document.getElementById("editarTarefa");
   let id;
 
-  // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
-      if(noti === "denied"){
-        document.getElementById("dataHora").disabled = true;
-        document.getElementById("permissoes").style.display = "flex";
-        document.getElementById("descricaoLabel").style.marginTop = "4px";
-      }
+      // ler o estado das notificações
+      database.listen(`/users/${userID}/notificacoes`, (valor) => {
+          noti = valor;
+
+          const dataHora = document.getElementById("dataHora");
+          const permissoes = document.getElementById("permissoes");
+          const descricaoLabel = document.getElementById("descricaoLabel");
+
+          if (noti === false) {
+              dataHora.disabled = true;
+              dataHora.style.opacity = "0.5";
+              permissoes.style.display = "flex";
+              descricaoLabel.style.marginTop = "4px";
+          } else {
+              dataHora.disabled = false;
+              dataHora.style.opacity = "1";
+              permissoes.style.display = "none";
+              descricaoLabel.style.marginTop = "20px";
+          }
+      });
 
       // pegar o id através dos parâmetros no URL
       const params = new URLSearchParams(window.location.search);
@@ -42,8 +56,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("categoria").value = tarefa.categoria;
         document.getElementById("descricao").value = tarefa.descricao;
         
-        if(noti === "denied"){
+        if(noti === false){
           document.getElementById("dataHora").disabled = true;
+          document.getElementById("permissoes").style.display = "flex";
+          document.getElementById("descricaoLabel").style.marginTop = "4px";
         } else {
           if(tarefa.lembrar !== "Sem lembrete"){
             document.getElementById("dataHora").value = tarefa.lembrar;
@@ -71,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           const checkboxVal = document.getElementById("checkbox");
           let lembreteVal;
 
-          if (noti === "denied") {
+          if (noti === false) {
             lembreteVal = "Sem lembrete";
           } else {
             lembreteVal = document.getElementById("dataHora").value;
