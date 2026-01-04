@@ -35,6 +35,7 @@
         }
 
         input[type="text"],
+        input[type="datetime-local"],
         textarea,
         select {
             width: 100%;
@@ -67,6 +68,26 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #toggleNotificacoes {
+            position: fixed;
+            bottom: 20px;      /* distância ao fundo */
+            right: 20px;       /* distância à direita */
+            padding: 12px 18px;
+            background-color: #3457D5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            z-index: 9999;     /* garante que fica por cima de tudo */
+            transition: 0.2s ease;
+        }
+
+        #toggleNotificacoes:hover {
+            background-color: #2747b8;
+        }
     </style>
     
     <body>
@@ -84,8 +105,12 @@
                     <option value="Lazer">Lazer</option>
                     <option value="Casa">Casa</option>
                 </select>
-                
-                <label for="descricao">Descrição</label>
+
+                <label for="dataHora">Lembrar em</label>
+                <input type="datetime-local" id="dataHora">
+                <label for="permissoes" id="permissoes" style="color:grey; font-size: small; display: none; font-weight:bold; margin-top: 0px;">Tem que habilitar as notificações</label>
+
+                <label for="descricao" id="descricaoLabel" style="margin-top: 20px;">Descrição</label>
                 <textarea id="descricao" name="descricao" placeholder="Descrição da tarefa(opcional)" style="resize: none; height: 100px;"></textarea>
 
                 <div id="marcarEstado" style="width: 100%;"></div>
@@ -93,6 +118,8 @@
                 <button type="button" onclick="window.location.href = 'tarefas.html'" style="background-color: red;">Cancelar</button>
             </form>
 
+            <button id="toggleNotificacoes">Notificações: OFF</button>
+            <script type="module" src="./script/toggleNotificacoes.mjs"></script>
             <script type="module" src="./script/editarTarefa.mjs"></script>
         </div>
     </body>

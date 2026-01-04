@@ -2,7 +2,9 @@ import { database as db } from "./db.mjs";
 
 // Escrever dados
 async function write(index, data) {
-    if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
+    if (!index || data === undefined) {
+    throw new Error("Nó ou o dado informado não é válido ou não existe");
+    }
     await db.ref(index).set(data);
 }
 

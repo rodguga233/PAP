@@ -1,45 +1,68 @@
 import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs"; 
 
+let noti= null;
+
 console.clear();
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("DOM carregado com sucesso!!!");
-  const form = document.getElementById("criarTarefa");
+  let form = document.getElementById("criarTarefa");
 
-  // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
+      
+      // ler o estado das notificações
+      database.listen(`/users/${userID}/notificacoes`, (valor) => {
+          noti = valor;
 
+          const dataHora = document.getElementById("dataHora");
+          const permissoes = document.getElementById("permissoes");
+          const descricaoLabel = document.getElementById("descricaoLabel");
+
+          if (noti === false) {
+              dataHora.disabled = true;
+              dataHora.style.opacity = "0.5";
+              permissoes.style.display = "flex";
+              descricaoLabel.style.marginTop = "4px";
+          } else {
+              dataHora.disabled = false;
+              dataHora.style.opacity = "1";
+              permissoes.style.display = "none";
+              descricaoLabel.style.marginTop = "20px";
+          }
+      });
+      
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const tarefa = document.getElementById("tarefa");
-        if (!tarefa.value.trim()) {
+        const tarefa = document.getElementById("tarefa").value;
+        if (!tarefa.trim()) {
           alert("Por favor, insira uma tarefa válida.");
           return;
         }
 
-        const descricao = document.getElementById("descricao");
-        if (!descricao.value.trim()) {
-          descricao.value = "Sem descrição";
+        let lembrete = document.getElementById("dataHora").value;
+        if (!lembrete) {
+          lembrete = "Sem lembrete";
         }
 
-        const categoria = document.getElementById("categoria");
-        let categoriaValor = categoria.value.trim();
-
-        if (!categoriaValor || categoriaValor === "Nenhuma") {
-          categoriaValor = "Nenhuma";
+        let descricao = document.getElementById("descricao").value;
+        if (!descricao.trim()) {
+          descricao = "Sem descrição";
         }
+
+        const categoria = document.getElementById("categoria").value.trim();
 
         const agora = new Date();
 
         console.log(
-          "tarefa:", tarefa.value,
-          "categoria:", categoriaValor,
-          "descricao:", descricao.value
+          "tarefa:", tarefa,
+          "lembrete:", lembrete,
+          "categoria:", categoria,
+          "descricao:", descricao,
         );
 
         if (form.id === "criarTarefa") {
@@ -47,11 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("ID do formulário correto.");
 
           const query = await database.addData(`/tarefas/${userID}`, {
-            tarefa: tarefa.value,
-            categoria: categoriaValor,
-            descricao: descricao.value,
+            tarefa: tarefa,
+            categoria: categoria,
+            descricao: descricao,
+            lembrar: lembrete,
             estado: "Pendente",
-            criado_em: agora.toLocaleString("pt-PT")
+            criado_em: agora.toLocaleString("pt-PT"),
+            notificado: false,
           });
 
           const no = `/tarefas/${userID}/${query}`;

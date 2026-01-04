@@ -1,121 +1,80 @@
 import { database } from "../database/func.mjs";
-import { auth, messaging } from "../database/db.mjs"; 
+import { auth } from "../database/db.mjs"; 
 
 let tbody = null;
 
-// ---- NOTIFICAÇÕES (Firebase 8) ----
-async function iniciarNotificacoes() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.log("O utilizador recusou as notificações");
-      return;
-    }
-
-    // Registar o service worker
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log("Service Worker registado:", registration);
-
-    // Gerar token (Firebase 8)
-    const token = await messaging.getToken({
-      vapidKey: "BHiILQLqXGVaOA1SeVwWWbLjx9SXt2AH4o_Ut3n3fpG-0KHGKG9jr2Dhh22At596WIfgMUlehcZCW5mrH2W0mLQ",
-      serviceWorkerRegistration: registration
-    });
-
-    console.log("TOKEN FCM:", token);
-
-    const user = auth.currentUser;
-    if (user) {
-      await database.updateData(`/tokens/${user.uid}`, { token });
-    }
-
-    // Notificações em foreground
-    messaging.onMessage((payload) => {
-      const { notification } = payload;
-      new Notification(notification.title, {
-        body: notification.body
-      });
-    });
-
-  } catch (error) {
-    console.error("Erro ao iniciar notificações:", error);
-  }
-}
-
-// ---- DOM ----
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
 
-  iniciarNotificacoes();
-
-  // Firebase 8 → auth.onAuthStateChanged
   auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userID = user.uid;
-      console.log("Utilizador autenticado:", userID);
+    if (!user) {
+      alert("Nenhum utilizador autenticado. Faça o login.");
+      return (window.location.href = "index.html");
+    }
 
-      const tarefas = await database.read(`/tarefas/${userID}`);
-      console.log("Tarefas carregadas:", tarefas);
+    const userID = user.uid;
+    console.log("Utilizador autenticado:", userID);
 
-      if (tarefas) {
-        const tabela = document.createElement("table");
-        tabela.id = "tabelaTarefas";
-        tabela.style.width = "100%";
-        tabela.style.marginTop = "20px";
-        tabela.style.borderCollapse = "collapse";
-        tabela.border = "1";
+    var utilizador = await database.read(`/users/${userID}/nome`);
+    utilizador = "Ola " + utilizador;
+    document.getElementById("nome").textContent = utilizador;
 
-        const thead = document.createElement("thead");
-        thead.style.height = "30px";
-        thead.style.backgroundColor = "#A9A9A9";
-        thead.style.color = "black";
+    const tarefas = await database.read(`/tarefas/${userID}`);
 
-        const trHead = document.createElement("tr");
-        ["ID", "Tarefa", "Categoria", "Descrição", "Estado", "Ações"].forEach(text => {
-          const th = document.createElement("th");
-          th.textContent = text;
-          trHead.appendChild(th);
-        });
+    if (tarefas) {
+      const tabela = document.createElement("table");
+      tabela.id = "tabelaTarefas";
+      tabela.style.width = "100%";
+      tabela.style.marginTop = "20px";
+      tabela.style.borderCollapse = "collapse";
+      tabela.border = "1";
 
-        thead.appendChild(trHead);
-        tabela.appendChild(thead);
+      const thead = document.createElement("thead");
+      thead.style.height = "30px";
+      thead.style.backgroundColor = "#A9A9A9";
+      thead.style.color = "black";
 
-        tbody = document.createElement("tbody");
-        tbody.style.textAlign = "left";
-        tbody.style.height = "25px";
-        tbody.style.backgroundColor = "#f2f2f2";
+      const trHead = document.createElement("tr");
+      ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        trHead.appendChild(th);
+      });
 
-        Object.entries(tarefas).forEach(gerarTabela);
-        tabela.appendChild(tbody);
+      thead.appendChild(trHead);
+      tabela.appendChild(thead);
 
-        const divTabela = document.getElementById("tabela");
-        divTabela.innerHTML = "";
-        divTabela.appendChild(tabela);
+      tbody = document.createElement("tbody");
+      tbody.style.textAlign = "left";
+      tbody.style.height = "25px";
+      tbody.style.backgroundColor = "#f2f2f2";
 
-      } else {
-        const divTabela = document.getElementById("tabela");
-        divTabela.innerHTML = "";
+      Object.entries(tarefas).forEach(gerarTabela);
+      tabela.appendChild(tbody);
 
-        const mensagem = document.createElement("p");
-        mensagem.textContent = "Nenhuma tarefa encontrada";
-        mensagem.style.textAlign = "center";
-        mensagem.style.fontWeight = "bold";
-        mensagem.style.marginTop = "20px";
-        mensagem.style.fontSize = "18px";
+      const divTabela = document.getElementById("tabela");
+      divTabela.innerHTML = "";
+      divTabela.appendChild(tabela);
 
-        divTabela.appendChild(mensagem);
-      }
     } else {
-      alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
+      const divTabela = document.getElementById("tabela");
+      divTabela.innerHTML = "";
+
+      const mensagem = document.createElement("p");
+      mensagem.textContent = "Nenhuma tarefa encontrada";
+      mensagem.style.textAlign = "center";
+      mensagem.style.fontWeight = "bold";
+      mensagem.style.marginTop = "20px";
+      mensagem.style.fontSize = "18px";
+
+      divTabela.appendChild(mensagem);
     }
   });
 });
 
-// ---- Tabela ----
+
+// tabela
 function gerarTabela([id, tarefa]) {
   const tr = document.createElement("tr");
 
@@ -136,6 +95,23 @@ function gerarTabela([id, tarefa]) {
   if (descricao_txt.length > 35) descricao_txt = descricao_txt.slice(0, 35) + "...";
   tdDescricao.textContent = descricao_txt;
   tr.appendChild(tdDescricao);
+
+  const tdLembrete = document.createElement("td");
+  if (tarefa.lembrar === "Sem lembrete") {
+    tdLembrete.textContent = tarefa.lembrar;
+    tr.appendChild(tdLembrete);
+  } else {
+    let lembrete_txt = tarefa.lembrar;
+    lembrete_txt = new Date(lembrete_txt).toLocaleString("pt-PT", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    tdLembrete.textContent = lembrete_txt;
+    tr.appendChild(tdLembrete);
+  }
 
   const tdEstado = document.createElement("td");
   tdEstado.textContent = tarefa.estado;
