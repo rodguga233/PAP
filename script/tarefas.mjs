@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
       divTabela.innerHTML = "";
 
       const mensagem = document.createElement("p");
-      mensagem.textContent = "Nenhuma tarefa encontrada";
+      mensagem.textContent = "Nenhuma tarefa criada";
       mensagem.style.textAlign = "center";
       mensagem.style.fontWeight = "bold";
       mensagem.style.marginTop = "20px";
