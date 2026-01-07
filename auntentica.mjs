@@ -6,6 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
   const form = document.getElementById("Login");
 
+  //fazer um login automatico caso nao tenha sido feito logout
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log("Sessão ainda ativa. Redirecionando...");
+      window.location.href = "tarefas.html";
+    }
+  });
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
