@@ -1,39 +1,40 @@
-import { database as db } from "./db.mjs";
+import { ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { database as db } from "./db.mjs"; 
 
 // Escrever dados
 async function write(index, data) {
     if (!index || data === undefined) {
-    throw new Error("Nó ou o dado informado não é válido ou não existe");
+        throw new Error("Nó ou o dado informado não é válido ou não existe");
     }
-    await db.ref(index).set(data);
+    await set(ref(db, index), data);
 }
 
 // Ler dados
 async function read(index) {
     if (!index) throw new Error("Nó informado não é válido ou não existe");
 
-    const snapshot = await db.ref(index).once("value");
+    const snapshot = await get(ref(db, index));
     return snapshot.exists() ? snapshot.val() : null;
 }
 
 // Atualizar dados
 async function updateData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
-    await db.ref(index).update(data);
+    await update(ref(db, index), data);
 }
 
 // Remover dados
 async function removeData(index) {
     if (!index) throw new Error("Nó informado não é válido ou não existe");
-    await db.ref(index).remove();
+    await remove(ref(db, index));
 }
 
 // Adicionar dados com ID automático
 async function addData(index, data) {
     if (!index || !data) throw new Error("Nó ou o dado informado não é válido ou não existe");
 
-    const novaRef = db.ref(index).push();
-    await novaRef.set(data);
+    const novaRef = push(ref(db, index));
+    await set(novaRef, data);
     return novaRef.key;
 }
 
@@ -41,7 +42,7 @@ async function addData(index, data) {
 async function listen(index, callback) {
     if (!index || !callback) throw new Error("Nó ou o callback informado não é válido ou não existe");
 
-    db.ref(index).on("value", (snapshot) => {
+    onValue(ref(db, index), (snapshot) => {
         callback(snapshot.exists() ? snapshot.val() : null);
     });
 }

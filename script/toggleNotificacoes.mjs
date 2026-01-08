@@ -1,9 +1,10 @@
 import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 const botao = document.getElementById("toggleNotificacoes");
 
-auth.onAuthStateChanged(async (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (!user) return;
 
     const index = `users/${user.uid}/notificacoes`;
