@@ -1,5 +1,6 @@
 import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs"; 
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 let tbody = null;
 
@@ -7,7 +8,7 @@ console.clear();
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado com sucesso!!!");
 
-  auth.onAuthStateChanged(async (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
       alert("Nenhum utilizador autenticado. Faça o login.");
       return (window.location.href = "index.html");
@@ -72,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
 
 // tabela
 function gerarTabela([id, tarefa]) {

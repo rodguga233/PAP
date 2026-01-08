@@ -71,6 +71,7 @@
     </style>
     
     <body>
+        <script type="module" src="./auntentica.mjs"></script>
         <div class="container">
             <h1>Login</h1>
             <form id="Login">
@@ -79,7 +80,11 @@
                 
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" placeholder="Password" required >
-                <input type="checkbox" onclick="mostrar()" style="margin-top: 25px;">Mostrar Password
+                <label style="cursor: pointer;">
+                    <input type="checkbox" style="margin-bottom: 0px;" onclick="mostrar()">
+                    Mostrar Password
+                </label>
+
 
                 <script>
                     function mostrar() {
@@ -96,8 +101,6 @@
                 <input type="submit" value="Login">
                 <button type="button" onclick="window.location.href='criarConta.html'">Criar Conta </button>
             </form>
-
-            <script type="module" src="./auntentica.mjs"></script>
         </div>
     </body>
 </html>

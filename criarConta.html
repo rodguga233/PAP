@@ -86,7 +86,10 @@
                 <label for="password2">Confirmar password</label>
                 <input type="password" name="password2" id="password2" placeholder="Confirmar password" required >
                 <label id="error" style="color:red; font-size: small; display: none; font-weight:bold;">As passwords não coincidem</label>
-                <input type="checkbox" id="checkbox" onclick="mostrar()" style="margin-top: 25px;">Mostrar Password
+                <label style="cursor:pointer;">
+                    <input type="checkbox" id="checkbox" onclick="mostrar()" style="margin-top: 25px;">
+                    Mostrar Password
+                </label>
 
                 <script>
                     const pass1 = document.getElementById("password1");

@@ -1,5 +1,6 @@
 import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs"; 
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,8 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log("ID do formulário correto.");
 
-      // Firebase 8 → auth.createUserWithEmailAndPassword
-      auth.createUserWithEmailAndPassword(email, pass)
+      // Firebase 11 → createUserWithEmailAndPassword(auth, email, pass)
+      createUserWithEmailAndPassword(auth, email, pass)
         .then(async (userCredential) => {
 
           alert("Utilizador criado com sucesso!");
@@ -47,12 +48,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (error.code === "auth/email-already-in-use") {
             alert("O email já está a ser utilizado.");
+          } else if (error.code === "auth/invalid-email") {
+            alert("O email inserido não é válido.");
+          } else if (error.code === "auth/weak-password") {
+            alert("A palavra‑passe é demasiado fraca.");
+          } else {
+            alert("Erro ao criar o utilizador: " + error.message);
           }
 
-          setTimeout(() => {
-            alert("Erro ao criar o utilizador: " + error.message);
-            window.location.reload();
-          }, 5000);
+          document.getElementById("password1").value = "";
+          document.getElementById("password2").value = "";
         });
 
     } else {

@@ -1,103 +1,63 @@
 import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs"; 
-
-let noti= null;
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 console.clear();
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
   console.log("DOM carregado com sucesso!!!");
-  let form = document.getElementById("criarTarefa");
+  const form = document.getElementById("criarConta");
 
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userID = user.uid;
-      console.log("Utilizador autenticado:", userID);
-      
-      // ler o estado das notificações
-      database.listen(`/users/${userID}/notificacoes`, (valor) => {
-          noti = valor;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-          const dataHora = document.getElementById("dataHora");
-          const permissoes = document.getElementById("permissoes");
-          const descricaoLabel = document.getElementById("descricaoLabel");
+    const nome = document.getElementById("nome").value;
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password1").value;
+    const agora = new Date();
 
-          if (noti === false) {
-              dataHora.disabled = true;
-              dataHora.style.opacity = "0.5";
-              permissoes.style.display = "flex";
-              descricaoLabel.style.marginTop = "4px";
-          } else {
-              dataHora.disabled = false;
-              dataHora.style.opacity = "1";
-              permissoes.style.display = "none";
-              descricaoLabel.style.marginTop = "20px";
-          }
-      });
-      
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    if (form.id === "criarConta") {
 
-        const tarefa = document.getElementById("tarefa").value;
-        if (!tarefa.trim()) {
-          alert("Por favor, insira uma tarefa válida.");
-          return;
-        }
+      console.log("ID do formulário correto.");
 
-        let lembrete = document.getElementById("dataHora").value;
-        if (!lembrete) {
-          lembrete = "Sem lembrete";
-        }
+      // Firebase 11 → createUserWithEmailAndPassword(auth, email, pass)
+      createUserWithEmailAndPassword(auth, email, pass)
+        .then(async (userCredential) => {
 
-        let descricao = document.getElementById("descricao").value;
-        if (!descricao.trim()) {
-          descricao = "Sem descrição";
-        }
+          alert("Utilizador criado com sucesso!");
 
-        const categoria = document.getElementById("categoria").value.trim();
+          const userID = userCredential.user.uid;
 
-        const agora = new Date();
-
-        console.log(
-          "tarefa:", tarefa,
-          "lembrete:", lembrete,
-          "categoria:", categoria,
-          "descricao:", descricao,
-        );
-
-        if (form.id === "criarTarefa") {
-
-          console.log("ID do formulário correto.");
-
-          const query = await database.addData(`/tarefas/${userID}`, {
-            tarefa: tarefa,
-            categoria: categoria,
-            descricao: descricao,
-            lembrar: lembrete,
-            estado: "Pendente",
-            criado_em: agora.toLocaleString("pt-PT"),
-            notificado: false,
+          await database.write(`/users/${userID}`, {
+            userID: userID,
+            nome: nome,
+            email: email,
+            Criado_em: agora.toLocaleString("pt-PT"),
+            notificacoes: false,
           });
 
-          const no = `/tarefas/${userID}/${query}`;
-          console.log("Nó criado:", no);
-
-          alert("Tarefa criada com sucesso!");
+          console.log("Nó criado:", `/users/${userID}`);
 
           setTimeout(() => {
-            window.location.href = "tarefas.html";
+            window.location.href = "index.html";
           }, 500);
 
-        } else {
-          console.log("Nome do formulário incorreto.");
-        }
-      });
+        })
+        .catch((error) => {
+          console.error("Erro ao criar utilizador:", error);
+
+          if (error.code === "auth/email-already-in-use") {
+            alert("O email já está a ser utilizado.");
+          }
+
+          setTimeout(() => {
+            alert("Erro ao criar o utilizador: " + error.message);
+            window.location.reload();
+          }, 5000);
+        });
 
     } else {
-      alert("Nenhum utilizador autenticado. Faça o login para poder acessar a esta página.");
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
+      console.log("Nome do formulário incorreto.");
     }
   });
 });
