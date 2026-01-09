@@ -1,6 +1,5 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { auth } from "../database/db.mjs";
 
 let noti = null;
 
@@ -8,55 +7,59 @@ console.clear();
 document.addEventListener("DOMContentLoaded", () => {
 
   console.log("DOM carregado com sucesso!!!");
-  const form = document.getElementById("criarConta");
+  const form = document.getElementById("criarTarefa");
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const nome = document.getElementById("nome").value;
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password1").value;
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Precisas de estar autenticado para criar tarefas.");
+      return;
+    }
+
+    const userID = user.uid;
+
+    const tarefa = document.getElementById("tarefa").value;
+    const categoria = document.getElementById("categoria").value;
+    const dataHora = document.getElementById("dataHora").value;
+    const descricao = document.getElementById("descricao").value || "Sem descrição";
     const agora = new Date();
 
-    if (form.id === "criarConta") {
+    if (form.id === "criarTarefa") {
 
       console.log("ID do formulário correto.");
 
-      // Firebase 11 → createUserWithEmailAndPassword(auth, email, pass)
-      createUserWithEmailAndPassword(auth, email, pass)
-        .then(async (userCredential) => {
+      // Estrutura da tarefa (igual à tua no Firebase)
+      const novaTarefa = {
+        tarefa: tarefa,
+        categoria: categoria,
+        lembrar: dataHora || null,
+        descricao: descricao,
+        estado: "Pendente",
+        notificado: false,
+        criado_em: agora.toLocaleString("pt-PT")
+      };
 
-          alert("Utilizador criado com sucesso!");
+      try {
+        const tarefaID = await database.pushData(`/tarefas/${userID}`, novaTarefa);
 
-          const userID = userCredential.user.uid;
+        alert("Tarefa criada com sucesso!");
+        console.log("Tarefa criada:", `/tarefas/${userID}/${tarefaID}`);
 
-          await database.write(`/users/${userID}`, {
-            userID: userID,
-            nome: nome,
-            email: email,
-            Criado_em: agora.toLocaleString("pt-PT"),
-            notificacoes: false,
-          });
+        setTimeout(() => {
+          window.location.href = "tarefas.html";
+        }, 500);
 
-          console.log("Nó criado:", `/users/${userID}`);
+      } catch (error) {
+        console.error("Erro ao criar tarefa:", error);
 
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 500);
-
-        })
-        .catch((error) => {
-          console.error("Erro ao criar utilizador:", error);
-
-          if (error.code === "auth/email-already-in-use") {
-            alert("O email já está a ser utilizado.");
-          }
-
-          setTimeout(() => {
-            alert("Erro ao criar o utilizador: " + error.message);
-            window.location.reload();
-          }, 5000);
-        });
+        setTimeout(() => {
+          alert("Erro ao criar a tarefa: " + error.message);
+          window.location.reload();
+        }, 3000);
+      }
 
     } else {
       console.log("Nome do formulário incorreto.");
