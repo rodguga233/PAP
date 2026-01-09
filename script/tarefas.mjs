@@ -136,7 +136,7 @@ function gerarTabela([id, tarefa]) {
   botaoApagar.style.color = "white";
   botaoApagar.style.marginLeft = "10px";
   botaoApagar.addEventListener("click", () => {
-    window.location.href = `apagartarefa.html?idTarefa=${id}`;
+    window.location.href = `apagarTarefa.html?idTarefa=${id}`;
   });
 
   tdAcoes.appendChild(botaoEditar);
