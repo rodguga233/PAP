@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const userID = user.uid;
       console.log("Utilizador autenticado:", userID);
 
-      // 🔥 Ouvir estado das notificações
       database.listen(`/users/${userID}/notificacoes`, (valor) => {
         noti = valor;
 
@@ -36,7 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
 
-      // 🔥 Submissão do formulário
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
