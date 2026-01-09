@@ -2,6 +2,8 @@ import { database } from "../database/func.mjs";
 import { auth } from "../database/db.mjs"; 
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
+let noti = null;
+
 console.clear();
 document.addEventListener("DOMContentLoaded", () => {
 
