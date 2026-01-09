@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         try {
-          const tarefaID = await database.pushData(`/tarefas/${userID}`, novaTarefa);
+          const tarefaID = await database.addData(`/tarefas/${userID}`, novaTarefa);
 
           console.log("Tarefa criada:", tarefaID);
           alert("Tarefa criada com sucesso!");
