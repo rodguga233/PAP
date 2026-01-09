@@ -5,7 +5,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/fi
 const botao = document.getElementById("toggleNotificacoes");
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
 
     const index = `users/${user.uid}/notificacoes`;
 
