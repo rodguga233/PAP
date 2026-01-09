@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log("ID do formulário correto.");
 
-      // Firebase 11 → createUserWithEmailAndPassword(auth, email, pass)
       createUserWithEmailAndPassword(auth, email, pass)
         .then(async (userCredential) => {
 
