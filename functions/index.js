@@ -50,10 +50,7 @@ exports.enviarEmailsLembretes = onSchedule(
         if (horaLembrete <= agora) {
           const msg = {
             to: email,
-            from: {
-              email: "jesurodrigo924@gmail.com",
-              name: "Organizador de Tarefas PAP",
-            },
+            from: "jesurodrigo924@gmail.com",
             subject: `Lembrete: ${tarefa.tarefa}`,
             text: `Olá ${nome || ""}! Tens um lembrete:\n\n${tarefa.tarefa}\n\nDescrição: ${tarefa.descricao || ""}`,
             html: `
