@@ -55,8 +55,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (tarefa) {
         document.getElementById("tarefa").value = tarefa.tarefa;
         document.getElementById("categoria").value = tarefa.categoria;
-        document.getElementById("descricao").value = tarefa.descricao;
 
+        if (tarefa.descricao === " Sem descrição"){
+          document.getElementById("descricao").value = "";
+        } else {
+          document.getElementById("descricao").value = tarefa.descricao;
+        }
+        
         if (noti === false) {
           document.getElementById("dataHora").disabled = true;
           document.getElementById("permissoes").style.display = "flex";
