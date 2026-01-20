@@ -91,11 +91,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           const categoriaVal = document.getElementById("categoria").value;
           const descricaoVal = document.getElementById("descricao").value;
           const checkboxVal = document.getElementById("checkbox");
+          const agora = new Date();
           let lembreteVal;
 
           if (noti === false) {
             lembreteVal = "Sem lembrete";
           } else {
+            if (document.getElementById("dataHora").value <= agora.toISOString()) {
+              alert("A data e hora do lembrete invalidaas.");
+              return;
+            }
             lembreteVal = document.getElementById("dataHora").value;
           }
 
