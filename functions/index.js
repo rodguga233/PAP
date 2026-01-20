@@ -11,8 +11,7 @@ exports.enviarEmailsLembretes = onSchedule(
   {
     schedule: "every 1 minutes",
     secrets: [SENDGRID_KEY],
-  },
-  async () => {
+  }, async () => {
     sgMail.setApiKey(SENDGRID_KEY.value());
 
     const db = admin.database();

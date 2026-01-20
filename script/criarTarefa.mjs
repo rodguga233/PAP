@@ -48,6 +48,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (noti === false) {
           lembreteVal = "Sem lembrete";
         } else {
+          if (document.getElementById("dataHora").value <= agora.toISOString()) {
+            alert("A data e hora do lembrete invalidaas.");
+            return;
+          }
           lembreteVal = document.getElementById("dataHora").value || "Sem lembrete";
         }
 
