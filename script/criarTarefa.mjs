@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           lembreteVal = "Sem lembrete";
         } else {
           if (document.getElementById("dataHora").value <= agora.toISOString()) {
-            alert("A data e hora do lembrete invalidaas.");
+            alert("A data e hora do lembrete invalidas.");
             return;
           }
           lembreteVal = document.getElementById("dataHora").value || "Sem lembrete";
