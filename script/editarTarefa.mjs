@@ -37,8 +37,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       // pegar o id através dos parâmetros no URL
-      const params = new URLSearchParams(window.location.search);
-      id = params.get("idTarefa");
+      const URL = new URLSearchParams(window.location.search);
+      id = URL.get("idTarefa");
 
       if (id) {
         sessionStorage.setItem("idTarefa", id);
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("tarefa").value = tarefa.tarefa;
         document.getElementById("categoria").value = tarefa.categoria;
 
-        if (tarefa.descricao === " Sem descrição"){
+        if (tarefa.descricao === "Sem descrição"){
           document.getElementById("descricao").value = "";
         } else {
           document.getElementById("descricao").value = tarefa.descricao;
@@ -89,7 +89,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           const tarefaVal = document.getElementById("tarefa").value;
           const categoriaVal = document.getElementById("categoria").value;
-          const descricaoVal = document.getElementById("descricao").value;
           const checkboxVal = document.getElementById("checkbox");
           const agora = new Date();
           let lembreteVal;
@@ -102,6 +101,12 @@ document.addEventListener("DOMContentLoaded", async () => {
               return;
             }
             lembreteVal = document.getElementById("dataHora").value;
+          }
+          
+          if (document.getElementById("descricao").value.trim() === "") {
+            document.getElementById("descricao").value = "Sem descrição";
+          } else {
+            const descricaoVal = document.getElementById("descricao").value;
           }
 
           const estadoVal = checkboxVal.checked ? "Concluído" : "Pendente";
@@ -123,6 +128,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Não foi possível atualizar a tarefa.");
           }
         });
+      } else {
+        alert("Tarefa não encontrada.");
+        window.location.href = "tarefas.html";
       }
 
     } else {
