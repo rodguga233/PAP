@@ -9,8 +9,8 @@
             console.log("Utilizador autenticado:", userID);
 
             // pegar o id através dos parâmetros no URL
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get("idTarefa");
+            const URL = new URLSearchParams(window.location.search);
+            const id = URL.get("idTarefa");
             console.log("ID da tarefa:", id);
 
             try {
