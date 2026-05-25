@@ -103,10 +103,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             lembreteVal = document.getElementById("dataHora").value;
           }
           
-          if (document.getElementById("descricao").value.trim() === "") {
-            document.getElementById("descricao").value = "Sem descrição";
-          } else {
-            const descricaoVal = document.getElementById("descricao").value;
+          let descricaoVal = document.getElementById("descricao").value.trim();
+          if (descricaoVal === "") {
+            descricaoVal = "Sem descrição";
           }
 
           const estadoVal = checkboxVal.checked ? "Concluído" : "Pendente";
