@@ -1,95 +1,190 @@
 <!DOCTYPE html>
 <html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tarefas</title>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tarefas</title>
-    </head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
-    <style> 
-        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
-            
-        .container {
-            background-color: #ffffff;
-            width: 950px;
-            margin: auto; 
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/dashboard.css" />
+  </head>
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-top: 10px;
-        }
+  <body>
+    <div class="content-container">
 
-        p {
-            margin-top: 10px;
-            margin-bottom: 0px;
-        }
+      <div id="notification" class="notification green-background">
+        <iconify-icon icon="mdi:check-circle-outline" width="24" height="24"></iconify-icon>
+        <p>Tarefa apagada</p>
+      </div>
 
-        label {
-            display: block;
-            margin-top: 15px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-
-        button[type="button"] {
-            margin-top: 15px;
-            width: 100%;
-            padding: 10px;
-            background-color: #3564bb;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        #toggleNotificacoes {
-            position: fixed;
-            bottom: 20px;      /* distância ao fundo */
-            right: 20px;       /* distância à direita */
-            padding: 12px 18px;
-            background-color: #3457D5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-            z-index: 9999;     /* garante que fica por cima de tudo */
-            transition: 0.2s ease;
-        }
-
-        #toggleNotificacoes:hover {
-            background-color: #2747b8;
-        }
-
-    </style>
-    
-    <body>
-        <div class="container">
-            <div id="nome" style="text-align: center; font-size: 50px; font-weight: bold; color: #333;"></div>
-            <h1>Todas as suas tarefas</h1>
-
-            <div id="tabela" style="width:auto"></div>
-            <script type="module" src="./script/tarefas.mjs"></script>
-
-            <button type="button" id="criarTarefas" onclick="window.location.href = 'criarTarefa.html'" >Criar tarefa</button>
-            <button type="button" id="logout" onclick="window.location.href = 'logout.html'" style="background-color: red;">Terminar Sessao</button>
+      <div class="max-width-container">
+        <div class="header flex items-center justify-between">
+          <h1 class="title">As minhas tarefas</h1>
+          <div class="buttons-container">
+            <button id="add-task-cta" class="button regular-button blue-background">Adicionar tarefa</button>
+            <button class="sign-out-cta">Sign out</button>
+          </div>
         </div>
-        <button id="toggleNotificacoes">Notificações: OFF</button>
-        <script type="module" src="./script/toggleNotificacoes.mjs"></script>
-    </body>
+      </div>
+
+      <!-- LINHA DIVISÓRIA -->
+      <hr style="border: 0; height: 1px; background: #ccc; margin: 20px 0;">
+
+      <div class="max-width-container">
+        <div id="list-view" class="list-view">
+
+          <div class="list-container pink">
+            <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="circle pink-background"></span>
+                <span class="text" style="font-size:20px; font-weight:600;">Pendente</span>
+              </div>
+              <span id="count-pendente" style="font-size:16px; font-weight:500; color:#555;">0</span>
+            </h2>
+            <ul id="todo-list" class="tasks-list"></ul>
+          </div>
+
+          <div class="list-container blue">
+            <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="circle blue-background"></span>
+                <span class="text" style="font-size:20px; font-weight:600;">Em progresso</span>
+              </div>
+              <span id="count-progresso" style="font-size:16px; font-weight:500; color:#555;">0</span>
+            </h2>
+            <ul id="doing-list" class="tasks-list"></ul>
+          </div>
+
+          <div class="list-container green">
+            <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="circle green-background"></span>
+                <span class="text" style="font-size:20px; font-weight:600;">Concluído</span>
+              </div>
+              <span id="count-concluido" style="font-size:16px; font-weight:500; color:#555;">0</span>
+            </h2>
+            <ul id="done-list" class="tasks-list"></ul>
+          </div>
+
+
+
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div id="set-task-overlay" class="overlay set-task-overlay hide">
+      <div class="overlay-content pink-background">
+        <button class="button circle-button blue-background close-button">
+          <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
+        </button>
+
+        <h1 class="header">Adicionar tarefa</h1>
+
+        <form id="form-add" class="form" autocomplete="off">
+          <label class="label">Nome</label>
+          <input
+            id="add-name"
+            type="text"
+            class="input white-background"
+            required
+            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+          />
+
+          <label class="label">Descrição</label>
+          <textarea
+            id="add-desc"
+            rows="6"
+            class="textarea-input white-background"
+            required
+            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+          ></textarea>
+
+          <label class="label">Categoria</label>
+          <input
+            id="add-category"
+            type="text"
+            class="input white-background"
+            required
+            placeholder="Ex: Trabalho, Escola, Pessoal..."
+            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+          />
+
+          <label class="label">Data e hora do lembrete</label>
+          <input
+            id="add-date"
+            type="datetime-local"
+            class="input white-background"
+            required
+            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+          />
+
+          <label class="label">Estado</label>
+          <select
+            id="add-status"
+            class="input white-background"
+            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+          >
+            <option value="Pendente">Pendente</option>
+            <option value="Em progresso">Em progresso</option>
+            <option value="Concluído">Concluído</option>
+          </select>
+
+          <div class="text-center" style="margin-top: 10px;">
+            <button
+              type="submit"
+              class="button regular-button green-background"
+              style="padding: 10px 25px; border-radius: 6px;"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+
+    <div id="view-task-overlay" class="overlay view-task-overlay hide">
+      <div class="overlay-content green-background" style="min-width:320px;">
+        <button class="button circle-button blue-background close-button">
+          <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
+        </button>
+
+        <h1 class="header no-margin" id="view-name"></h1>
+        <p class="value" id="view-desc"></p>
+
+        <div class="flex items-center">
+          <h1 class="header min-width">Categoria</h1>
+          <p class="value" id="view-category"></p>
+        </div>
+
+        <div class="flex items-center">
+          <h1 class="header min-width">Data lembrete</h1>
+          <p class="value" id="view-date"></p>
+        </div>
+
+        <div class="flex items-center">
+          <h1 class="header min-width">Estado</h1>
+          <p class="value status-value" id="view-status"></p>
+        </div>
+
+        <div class="control-buttons-container">
+          <button id="edit-task-btn" class="button circle-button pink-background">
+            <iconify-icon icon="material-symbols:edit-rounded" width="24" height="24"></iconify-icon>
+          </button>
+
+          <button id="delete-task-btn" class="button circle-button pink-background">
+            <iconify-icon icon="ic:round-delete" width="24" height="24"></iconify-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+    <script type="module" src="./script/tarefas.mjs"></script>
+  </body>
 </html>

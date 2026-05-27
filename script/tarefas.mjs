@@ -1,147 +1,189 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { auth } from "../database/db.mjs";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
-let tbody = null;
+// ELEMENTOS
+const todoList = document.getElementById("todo-list");     // Pendente
+const doingList = document.getElementById("doing-list");   // Em progresso
+const doneList = document.getElementById("done-list");     // Concluído
 
-console.clear();
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM carregado com sucesso!!!");
+const addTaskCTA = document.getElementById("add-task-cta");
+const setTaskOverlay = document.getElementById("set-task-overlay");
+const viewTaskOverlay = document.getElementById("view-task-overlay");
+const closeButtons = document.querySelectorAll(".close-button");
+const notification = document.getElementById("notification");
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      alert("Nenhum utilizador autenticado. Faça o login.");
-      return (window.location.href = "index.html");
-    }
+let activeOverlay = null;
+let currentTaskID = null;
+let userID = null;
 
-    const userID = user.uid;
-    console.log("Utilizador autenticado:", userID);
+// SIGN OUT
+document.querySelector(".sign-out-cta").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
 
-    var utilizador = await database.read(`/users/${userID}/nome`);
-    utilizador = "Ola " + utilizador;
-    document.getElementById("nome").textContent = utilizador;
+// ABRIR ADD TASK
+addTaskCTA.addEventListener("click", () => {
+  setTaskOverlay.classList.remove("hide");
+  activeOverlay = setTaskOverlay;
+  document.body.classList.add("overflow-hidden");
+});
 
-    const tarefas = await database.read(`/tarefas/${userID}`);
-
-    if (tarefas) {
-      const tabela = document.createElement("table");
-      tabela.id = "tabelaTarefas";
-      tabela.style.width = "100%";
-      tabela.style.marginTop = "20px";
-      tabela.style.borderCollapse = "collapse";
-      tabela.border = "1";
-
-      const thead = document.createElement("thead");
-      thead.style.height = "30px";
-      thead.style.backgroundColor = "#A9A9A9";
-      thead.style.color = "black";
-
-      const trHead = document.createElement("tr");
-      ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
-        const th = document.createElement("th");
-        th.textContent = text;
-        trHead.appendChild(th);
-      });
-
-      thead.appendChild(trHead);
-      tabela.appendChild(thead);
-
-      tbody = document.createElement("tbody");
-      tbody.style.textAlign = "left";
-      tbody.style.height = "25px";
-      tbody.style.backgroundColor = "#f2f2f2";
-
-      Object.entries(tarefas).forEach(gerarTabela);
-      tabela.appendChild(tbody);
-
-      const divTabela = document.getElementById("tabela");
-      divTabela.innerHTML = "";
-      divTabela.appendChild(tabela);
-
-    } else {
-      const divTabela = document.getElementById("tabela");
-      divTabela.innerHTML = "";
-
-      const mensagem = document.createElement("p");
-      mensagem.textContent = "Nenhuma tarefa criada";
-      mensagem.style.textAlign = "center";
-      mensagem.style.fontWeight = "bold";
-      mensagem.style.marginTop = "20px";
-      mensagem.style.fontSize = "18px";
-
-      divTabela.appendChild(mensagem);
-    }
+// FECHAR OVERLAYS
+closeButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeOverlay.classList.add("hide");
+    activeOverlay = null;
+    document.body.classList.remove("overflow-hidden");
   });
 });
 
-// tabela
-function gerarTabela([id, tarefa]) {
-  const tr = document.createElement("tr");
+// CRIAR CARD DE TAREFA
+function criarCard(id, tarefa, destinoLista) {
+  const li = document.createElement("li");
+  li.className = "task-item";
 
-  const tdId = document.createElement("td");
-  tdId.textContent = id;
-  tr.appendChild(tdId);
+  const btn = document.createElement("button");
+  btn.className = "task-button";
+  btn.style.display = "flex";
+  btn.style.alignItems = "center";
+  btn.style.width = "100%";
+  btn.style.position = "relative"; // importante para centrar a data
 
-  const tdTarefa = document.createElement("td");
-  tdTarefa.textContent = tarefa.tarefa;
-  tr.appendChild(tdTarefa);
+  // ESQUERDA → tarefa (categoria)
+  const esquerda = document.createElement("div");
+  esquerda.style.display = "flex";
+  esquerda.style.flexDirection = "column";
+  esquerda.style.textAlign = "left";
+  esquerda.style.flex = "1";
 
-  const tdCategoria = document.createElement("td");
-  tdCategoria.textContent = tarefa.categoria || "sem categoria";
-  tr.appendChild(tdCategoria);
+  const nome = document.createElement("p");
+  nome.className = "task-name";
+  nome.style.fontSize = "15px";
+  nome.style.fontWeight = "600";
+  nome.textContent = tarefa.tarefa;
 
-  const tdDescricao = document.createElement("td");
-  let descricao_txt = tarefa.descricao;
-  if (descricao_txt.length > 35) descricao_txt = descricao_txt.slice(0, 35) + "...";
-  tdDescricao.textContent = descricao_txt;
-  tr.appendChild(tdDescricao);
+  const categoria = document.createElement("p");
+  categoria.className = "task-category";
+  categoria.style.fontSize = "13px";
+  categoria.style.color = "#666";
+  categoria.textContent = tarefa.categoria ? `(${tarefa.categoria})` : "(Sem categoria)";
 
-  const tdLembrete = document.createElement("td");
-  if (tarefa.lembrar === "Sem lembrete") {
-    tdLembrete.textContent = tarefa.lembrar;
-    tr.appendChild(tdLembrete);
-  } else {
-    let lembrete_txt = tarefa.lembrar;
-    lembrete_txt = new Date(lembrete_txt).toLocaleString("pt-PT", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit"
+  esquerda.appendChild(nome);
+  esquerda.appendChild(categoria);
+
+  // CENTRO → data (verdadeiramente ao centro)
+  const data = document.createElement("p");
+  data.className = "task-due-date";
+  data.style.position = "absolute";
+  data.style.left = "50%";
+  data.style.transform = "translateX(-50%)";
+  data.style.fontSize = "14px";
+  data.style.color = "#333";
+  data.textContent = tarefa.lembrar === "Sem lembrete"
+    ? "Sem data"
+    : new Date(tarefa.lembrar).toLocaleDateString("pt-PT");
+
+  // DIREITA → seta
+  const arrow = document.createElement("iconify-icon");
+  arrow.setAttribute("icon", "material-symbols:arrow-back-ios-rounded");
+  arrow.setAttribute("width", "18");
+  arrow.setAttribute("height", "18");
+  arrow.className = "arrow-icon";
+
+  // Montagem final
+  btn.appendChild(esquerda);
+  btn.appendChild(data);
+  btn.appendChild(arrow);
+  li.appendChild(btn);
+
+  // ABRIR VIEW TASK
+  btn.addEventListener("click", () => {
+    currentTaskID = id;
+
+    document.getElementById("view-name").textContent = tarefa.tarefa;
+    document.getElementById("view-desc").textContent = tarefa.descricao;
+    document.getElementById("view-category").textContent = tarefa.categoria || "Sem categoria";
+    document.getElementById("view-date").textContent =
+      tarefa.lembrar === "Sem lembrete"
+        ? "Sem data"
+        : new Date(tarefa.lembrar).toLocaleDateString("pt-PT");
+
+    document.getElementById("view-status").textContent = tarefa.estado;
+
+    viewTaskOverlay.classList.remove("hide");
+    activeOverlay = viewTaskOverlay;
+    document.body.classList.add("overflow-hidden");
+  });
+
+  destinoLista.appendChild(li);
+}
+
+
+// MOSTRAR MENSAGEM QUANDO VAZIO
+function mostrarMensagemVazia(destinoLista, nomeCategoria) {
+  const msg = document.createElement("li");
+  msg.className = "task-item";
+  msg.style.textAlign = "center";
+  msg.style.color = "#777";
+  msg.style.padding = "5px";
+  msg.style.fontStyle = "italic";
+  msg.style.fontSize = "15px";
+  msg.textContent = `Sem tarefas em "${nomeCategoria}"`;
+  destinoLista.appendChild(msg);
+}
+
+// CARREGAR TAREFAS
+onAuthStateChanged(auth, async user => {
+  if (!user) return (window.location.href = "index.html");
+
+  userID = user.uid;
+  const tarefas = await database.read(`/tarefas/${userID}`);
+
+  let pendenteCount = 0;
+  let progressoCount = 0;
+  let concluidoCount = 0;
+
+  if (tarefas) {
+    Object.entries(tarefas).forEach(([id, tarefa]) => {
+      switch (tarefa.estado) {
+        case "Pendente":
+          criarCard(id, tarefa, todoList);
+          pendenteCount++;
+          break;
+
+        case "Em progresso":
+          criarCard(id, tarefa, doingList);
+          progressoCount++;
+          break;
+
+        case "Concluído":
+          criarCard(id, tarefa, doneList);
+          concluidoCount++;
+          break;
+      }
     });
-    tdLembrete.textContent = lembrete_txt;
-    tr.appendChild(tdLembrete);
   }
 
-  const tdEstado = document.createElement("td");
-  tdEstado.textContent = tarefa.estado;
-  tr.appendChild(tdEstado);
+  // Mostrar mensagem se estiver vazio
+  if (pendenteCount === 0) mostrarMensagemVazia(todoList, "Pendente");
+  if (progressoCount === 0) mostrarMensagemVazia(doingList, "Em progresso");
+  if (concluidoCount === 0) mostrarMensagemVazia(doneList, "Concluído");
 
-  const tdAcoes = document.createElement("td");
-  tdAcoes.style.textAlign = "center";
+  // Atualizar contadores
+  document.getElementById("count-pendente").textContent = pendenteCount;
+  document.getElementById("count-progresso").textContent = progressoCount;
+  document.getElementById("count-concluido").textContent = concluidoCount;
+});
 
-  const botaoEditar = document.createElement("button");
-  botaoEditar.style.border = "1px solid black";
-  botaoEditar.style.backgroundColor = "#3457D5";
-  botaoEditar.textContent = "Editar";
-  botaoEditar.style.color = "white";
-  botaoEditar.addEventListener("click", () => {
-    window.location.href = `editarTarefa.html?idTarefa=${id}`;
-  });
+// DELETE
+document.getElementById("delete-task-btn").addEventListener("click", async () => {
+  await database.remove(`/tarefas/${userID}/${currentTaskID}`);
 
-  const botaoApagar = document.createElement("button");
-  botaoApagar.style.border = "1px solid black";
-  botaoApagar.style.backgroundColor = "#ed0e0eff";
-  botaoApagar.textContent = "X";
-  botaoApagar.style.color = "white";
-  botaoApagar.style.marginLeft = "10px";
-  botaoApagar.addEventListener("click", () => {
-    window.location.href = `apagarTarefa.html?idTarefa=${id}`;
-  });
+  viewTaskOverlay.classList.add("hide");
+  notification.classList.add("show");
 
-  tdAcoes.appendChild(botaoEditar);
-  tdAcoes.appendChild(botaoApagar);
-  tr.appendChild(tdAcoes);
-
-  tbody.appendChild(tr);
-}
+  setTimeout(() => notification.classList.remove("show"), 3000);
+  setTimeout(() => window.location.reload(), 500);
+});

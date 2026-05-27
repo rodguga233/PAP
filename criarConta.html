@@ -1,148 +1,120 @@
 <!DOCTYPE html>
 <html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criar Conta</title>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Criar a conta</title>
-    </head>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-    <style> 
-        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
-            
-        .container {
-            background-color: #ffffff;
-            width: 350px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    <!-- CSS do template -->
+    <link rel="stylesheet" href="template/css/main.css" />
+    <link rel="stylesheet" href="template/css/entry-page.css" />
+  </head>
+
+  <body>
+    <div class="row height-full">
+      <!-- left side -->
+      <div
+        class="left-column flex flex-column height-full justify-center items-center"
+      >
+        <h1 class="welcoming-title">Criar Conta</h1>
+
+        <form id="criarConta" class="form" autocomplete="off">
+          <label for="nome" class="label">Nome</label>
+          <input type="text" name="nome" id="nome" class="input" required />
+
+          <label for="email" class="label">Email</label>
+          <input type="email" name="email" id="email" class="input" required />
+
+          <label for="password1" class="label">Password</label>
+          <input
+            type="password"
+            name="password1"
+            id="password1"
+            class="input"
+            required
+          />
+
+          <label for="password2" class="label">Confirmar Password</label>
+          <input
+            type="password"
+            name="password2"
+            id="password2"
+            class="input"
+            required
+          />
+
+          <label id="error" style="color:red; font-size: 13px; display:none; margin-top:5px;">
+            As passwords não coincidem
+          </label>
+
+          <!-- Checkbox mostrar password -->
+          <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin-top: 10px; font-size: 15px; width: auto;">
+            <input type="checkbox" id="checkbox" onclick="mostrar()" style="width: 20px; height: 20px; transform: scale(0.9); cursor: pointer;" />
+            <span>Mostrar Password</span>
+          </label>
+
+          <button
+            type="submit"
+            id="criar"
+            class="button regular-button pink-background cta-btn"
+            style="margin-top: 15px;"
+          >
+            Criar Conta
+          </button>
+        </form>
+
+        <p class="login-prompt">
+          Já tens conta?
+          <a href="./index.html" class="log-in-link">Entrar</a>
+        </p>
+      </div>
+
+      <!-- right side -->
+      <div class="right-column"></div>
+    </div>
+
+    <!-- Script de validação -->
+    <script>
+      const pass1 = document.getElementById("password1");
+      const pass2 = document.getElementById("password2");
+      const criar = document.getElementById("criar");
+      const error = document.getElementById("error");
+
+      document.getElementById("password2").addEventListener("input", validar);
+
+      function validar() {
+        if (pass2.value === "") {
+          criar.disabled = false;
+          error.style.display = "none";
+          return;
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
+        if (pass1.value !== pass2.value) {
+          criar.disabled = true;
+          error.style.display = "block";
+        } else {
+          criar.disabled = false;
+          error.style.display = "none";
         }
+      }
 
-        p {
-            margin-top: 10px;
-            margin-bottom: 0px;
-        }
+      function mostrar() {
+        const type = pass1.type === "password" ? "text" : "password";
+        pass1.type = type;
+        pass2.type = type;
+      }
+    </script>
 
-        label {
-            display: block;
-            margin-top: 15px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"] {
-            margin-top: 10px;
-            width: 100%;
-            height: auto;
-            padding: 10px;
-            background-color: #3564bb;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button[type="button"] {
-            margin-top: 10px;
-            width: 100%;
-            height: auto;
-            padding: 10px;
-            background-color: transparent;
-            border: 2px solid #3564bb;
-            color: #3564bb;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-    
-    <body>
-        <div class="container">
-            <h1>Preenche os campos necessários</h1>
-            <form id="criarConta">
-                <label for="nome">Nome</label>
-                <input type="text" name="nome" id="nome" placeholder="Nome" required >
-
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Email" required >
-                
-                <label for="password1">Password</label>
-                <input type="password" name="password1" id="password1" placeholder="Password" required >
-
-                <label for="password2">Confirmar password</label>
-                <input type="password" name="password2" id="password2" placeholder="Confirmar password" required >
-                <label id="error" style="color:red; font-size: small; display: none; font-weight:bold;">As passwords não coincidem</label>
-                <label style="cursor:pointer;">
-                    <input type="checkbox" id="checkbox" onclick="mostrar()" style="margin-top: 25px;">
-                    Mostrar Password
-                </label>
-
-                <script>
-                    const pass1 = document.getElementById("password1");
-                    const pass2 = document.getElementById("password2");
-
-                    document.getElementById('password2').addEventListener('input', validar);
-
-                    function validar(){
-                        var criar = document.getElementById("criar");
-                        var error = document.getElementById("error");
-                        var check = document.getElementById("checkbox");
-
-                        if(pass2.value === ""){
-                            criar.disabled = false;
-                            criar.style.backgroundColor = "#3564bb";
-                            error.style.display = "none";
-                            check.style.marginTop = "25px";
-                            return;
-                        }
-
-                        if(pass1.value != pass2.value){
-                            criar.disabled = true;
-                            criar.style.backgroundColor = "#718fc7";
-                            error.style.display = "block";
-                            error.style.marginTop = "5px";
-                            check.style.marginTop = "5px";
-
-                        } else {
-                            criar.disabled = false;
-                            criar.style.backgroundColor = "#3564bb";
-                            error.style.display = "none";
-                            check.style.marginTop = "25px";
-                        }
-                    }
-                    
-                    function mostrar() {
-                        if (pass1.type === "password" && pass2.type === "password") {
-                            pass1.type = "text";
-                            pass2.type = "text";
-                        } else {
-                            pass1.type = "password";
-                            pass2.type = "password";
-                        }
-                    }
-                </script>
-
-                <input type="submit" id="criar" value="Criar Conta" >
-                <button type="button" onclick="window.location.href='index.html'" >Login </button>
-
-                
-            </form>
-
-            <script type="module" src="./script/criarConta.mjs"></script>
-        </div>
-    </body>
+    <!-- Script Firebase -->
+    <script type="module" src="./script/criarConta.mjs"></script>
+  </body>
 </html>
