@@ -7,11 +7,12 @@ admin.initializeApp();
 
 const SENDGRID_KEY = defineSecret("SENDGRID_KEY");
 
-exports.enviarEmailsLembretes = onSchedule(
+exports.enviarEmailsConclusao = onSchedule(
   {
     schedule: "every 1 minutes",
     secrets: [SENDGRID_KEY],
-  }, async () => {
+  },
+  async () => {
     sgMail.setApiKey(SENDGRID_KEY.value());
 
     const db = admin.database();
@@ -32,33 +33,35 @@ exports.enviarEmailsLembretes = onSchedule(
       const email = userData?.email;
       const nome = userData?.nome;
 
-      if(userData?.notificacoes === false) continue;
+      // Só envia email se o utilizador tiver notificações ativas
+      if (userData?.notificacoes === false) continue;
 
       if (!email) continue;
 
       for (const tarefaID in tarefas) {
         const tarefa = tarefas[tarefaID];
 
-        if (!tarefa.lembrar || tarefa.lembrar === "Sem lembrete") continue;
+        // Agora usa "conclusao"
+        if (!tarefa.conclusao || tarefa.conclusao === "Sem data") continue;
         if (tarefa.notificado === true) continue;
         if (tarefa.estado !== "Pendente") continue;
 
-        const horaLembrete = new Date(tarefa.lembrar).getTime();
-        if (isNaN(horaLembrete)) continue;
+        const horaConclusao = new Date(tarefa.conclusao).getTime();
+        if (isNaN(horaConclusao)) continue;
 
-        if (horaLembrete <= agora) {
+        if (horaConclusao <= agora) {
           const msg = {
             to: email,
             from: "jesurodrigo924@gmail.com",
-            subject: `Lembrete: ${tarefa.tarefa}`,
-            text: `Olá ${nome || ""}! Tens um lembrete:\n\n${tarefa.tarefa}\n\nDescrição: ${tarefa.descricao || ""}`,
+            subject: `Conclusão: ${tarefa.tarefa}`,
+            text: `Olá ${nome || ""}! A data de conclusão chegou:\n\n${tarefa.tarefa}\n\nDescrição: ${tarefa.descricao || ""}`,
             html: `
               <h2>Olá ${nome || ""} 👋</h2>
-              <p>Tens um lembrete:</p>
+              <p>A data de conclusão chegou:</p>
               <p><strong>Tarefa:</strong> ${tarefa.tarefa}</p>
               <p><strong>Descrição:</strong> ${tarefa.descricao || "(sem descrição)"}</p>
-              <p><strong>Data:</strong> ${tarefa.lembrar}</p>
-            `
+              <p><strong>Data:</strong> ${tarefa.conclusao}</p>
+            `,
           };
 
           await sgMail.send(msg);

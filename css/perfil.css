@@ -1,0 +1,139 @@
+html, body {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-wrapper {
+  max-width: 450px;
+  margin: 30px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.profile-photo-section {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+#profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ddd;
+}
+
+.change-photo-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+#change-photo-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.profile-form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.notif-label {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.save-btn {
+  width: 100%;
+  margin-top: 25px;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.back-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background: #ccc;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.uploadcare--widget__button_type_open {
+  display: none !important;
+}
+
+/* NOTIFICAÇÃO */
+.notification {
+  /* relative to body */
+  position: fixed; /* fixed even on scroll */
+  /* hide */
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-32);
+  height: 80px;
+  font-weight: 600;
+  font-size: var(--font-size-14);
+  width: 100%;
+  max-width: 375px;
+  transition-property: top;
+  transition-duration: 0.5s;
+}
+
+.notification.show {
+  top: 0;
+}
+
+.green-background {
+  background-color: var(--green);
+}
+
+.red-background {
+  background-color: var(--red);
+}
+
+.yellow-background {
+  background-color: var(--yellow);
+}

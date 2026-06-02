@@ -11,10 +11,12 @@
 
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/dashboard.css" />
+
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
   </head>
 
   <body>
-    <div class="content-container">
+    <div class="content-container" style="background-color: #F3F4F6;">
 
       <div id="notification" class="notification green-background">
         <iconify-icon icon="mdi:check-circle-outline" width="24" height="24"></iconify-icon>
@@ -24,14 +26,41 @@
       <div class="max-width-container">
         <div class="header flex items-center justify-between">
           <h1 class="title">As minhas tarefas</h1>
-          <div class="buttons-container">
+
+          <div class="buttons-container flex items-center gap-3">
+
+            <!-- BOTÃO DE FILTRO -->
+            <button id="filter-btn" class="button regular-button" style="background:#E5E7EB; border:1px solid #000;">
+              Filtrar
+            </button>
+
+            <!-- MENU DE FILTRO -->
+            <div id="filter-menu" class="filter-menu hide">
+              <button data-filter="estado">Estado</button>
+              <button data-filter="datas">Data</button>
+              <button data-filter="categorias">Categorias</button>
+              <button data-filter="prioridade">Prioridade</button>
+            </div>
+
+            <!-- BOTÃO ADICIONAR -->
             <button id="add-task-cta" class="button regular-button blue-background">Adicionar tarefa</button>
-            <button class="sign-out-cta">Sign out</button>
+
+            <!-- Ícone de perfil -->
+            <div class="profile-container">
+              <img src="img/perfil.jpg" alt="Perfil" class="profile-icon" id="profile-icon">
+
+              <!-- DROPDOWN -->
+              <div class="profile-dropdown" id="profile-dropdown">
+                <h3 class="dropdown-header">Olá, <span id="user-name">User</span></h3>
+                <button class="dropdown-item" id="edit-profile">Editar perfil</button>
+                <button class="dropdown-item danger" id="logout-btn">Terminar sessão</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- LINHA DIVISÓRIA -->
+
       <hr style="border: 0; height: 1px; background: #ccc; margin: 20px 0;">
 
       <div class="max-width-container">
@@ -40,7 +69,6 @@
           <div class="list-container pink">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="circle pink-background"></span>
                 <span class="text" style="font-size:20px; font-weight:600;">Pendente</span>
               </div>
               <span id="count-pendente" style="font-size:16px; font-weight:500; color:#555;">0</span>
@@ -51,7 +79,6 @@
           <div class="list-container blue">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="circle blue-background"></span>
                 <span class="text" style="font-size:20px; font-weight:600;">Em progresso</span>
               </div>
               <span id="count-progresso" style="font-size:16px; font-weight:500; color:#555;">0</span>
@@ -62,7 +89,6 @@
           <div class="list-container green">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="circle green-background"></span>
                 <span class="text" style="font-size:20px; font-weight:600;">Concluído</span>
               </div>
               <span id="count-concluido" style="font-size:16px; font-weight:500; color:#555;">0</span>
@@ -70,121 +96,137 @@
             <ul id="done-list" class="tasks-list"></ul>
           </div>
 
-
-
         </div>
-    </div>
+      </div>
 
-    <!-- Overlays -->
-    <div id="set-task-overlay" class="overlay set-task-overlay hide">
-      <div class="overlay-content pink-background">
-        <button class="button circle-button blue-background close-button">
-          <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
-        </button>
+      <!-- Overlay de Adicionar / Editar -->
+      <div id="set-task-overlay" class="overlay set-task-overlay hide" style="background-color: #F3F4F6;">
+        <div class="overlay-content pink-background">
+          <button class="button circle-button blue-background close-button">
+            <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
+          </button>
 
-        <h1 class="header">Adicionar tarefa</h1>
+          <h1 class="header" id="overlay-title">Adicionar tarefa</h1>
 
-        <form id="form-add" class="form" autocomplete="off">
-          <label class="label">Nome</label>
-          <input
-            id="add-name"
-            type="text"
-            class="input white-background"
-            required
-            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
-          />
+          <form id="form-add" class="form" autocomplete="off">
+            <label class="label">Nome</label>
+            <input
+              id="add-name"
+              type="text"
+              class="input white-background"
+              required
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+            />
 
-          <label class="label">Descrição</label>
-          <textarea
-            id="add-desc"
-            rows="6"
-            class="textarea-input white-background"
-            required
-            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
-          ></textarea>
+            <label class="label">Descrição</label>
+            <textarea
+              id="add-desc"
+              rows="6"
+              class="textarea-input white-background"
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+            ></textarea>
 
-          <label class="label">Categoria</label>
-          <input
-            id="add-category"
-            type="text"
-            class="input white-background"
-            required
-            placeholder="Ex: Trabalho, Escola, Pessoal..."
-            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
-          />
-
-          <label class="label">Data e hora do lembrete</label>
-          <input
-            id="add-date"
-            type="datetime-local"
-            class="input white-background"
-            required
-            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
-          />
-
-          <label class="label">Estado</label>
-          <select
-            id="add-status"
-            class="input white-background"
-            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
-          >
-            <option value="Pendente">Pendente</option>
-            <option value="Em progresso">Em progresso</option>
-            <option value="Concluído">Concluído</option>
-          </select>
-
-          <div class="text-center" style="margin-top: 10px;">
-            <button
-              type="submit"
-              class="button regular-button green-background"
-              style="padding: 10px 25px; border-radius: 6px;"
+            <label class="label">Categoria</label>
+            <select
+              id="add-category"
+              class="input white-background"
+              required
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
             >
-              Guardar
+              <option value="Nenhuma" selected>Sem categoria</option>
+              <option value="Trabalho">Trabalho</option>
+              <option value="Estudos">Estudos</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Casa">Casa</option>
+            </select>
+
+            <label class="label">Prioridade</label>
+            <select
+              id="add-prioridade"
+              class="input white-background"
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+            >
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+              <option value="Baixa" selected>Baixa</option>
+            </select>
+
+            <label class="label">Data e hora de conclusão</label>
+            <input
+              id="add-date"
+              type="datetime-local"
+              class="input white-background"
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+            />
+
+            <label class="label" id="add-status-label">Estado</label>
+            <select
+              id="add-status"
+              class="input white-background"
+              style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+            >
+              <option value="Pendente" selected>Pendente</option>
+              <option value="Em progresso">Em progresso</option>
+              <option value="Concluído">Concluído</option>
+            </select>
+
+            <div class="text-center" style="margin-top: 10px;">
+              <button
+                id="overlay-submit-btn"
+                type="submit"
+                class="button regular-button green-background"
+                style="padding: 10px 25px; border-radius: 6px;"
+              >
+                Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Overlay de Visualização -->
+      <div id="view-task-overlay" class="overlay view-task-overlay hide" style="background-color: #F3F4F6;">
+        <div class="overlay-content green-background" style="min-width:320px;">
+          <button class="button circle-button blue-background close-button">
+            <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
+          </button>
+
+          <h1 class="header no-margin" id="view-name"></h1>
+          <p class="value" id="view-desc"></p>
+
+          <div class="flex items-center">
+            <h1 class="header min-width">Categoria</h1>
+            <p class="value" id="view-category"></p>
+          </div>
+
+          <div class="flex items-center">
+            <h1 class="header min-width">Data de conclusão</h1>
+            <p class="value" id="view-date" style="margin-left: 10px;"></p>
+          </div>
+
+          <div class="flex items-center">
+            <h1 class="header min-width">Prioridade</h1>
+            <p class="value status-value" id="view-prioridade"></p>
+          </div>
+
+          <div class="flex items-center">
+            <h1 class="header min-width">Estado</h1>
+            <p class="value status-value" id="view-status"></p>
+          </div>
+
+          <div class="control-buttons-container">
+            <button id="edit-task-btn" class="button circle-button pink-background">
+              <iconify-icon icon="material-symbols:edit-rounded" width="24" height="24"></iconify-icon>
+            </button>
+
+            <button id="delete-task-btn" class="button circle-button pink-background">
+              <iconify-icon icon="ic:round-delete" width="24" height="24"></iconify-icon>
             </button>
           </div>
-        </form>
-
-      </div>
-    </div>
-
-
-    <div id="view-task-overlay" class="overlay view-task-overlay hide">
-      <div class="overlay-content green-background" style="min-width:320px;">
-        <button class="button circle-button blue-background close-button">
-          <iconify-icon icon="material-symbols:close-rounded" width="26" height="26"></iconify-icon>
-        </button>
-
-        <h1 class="header no-margin" id="view-name"></h1>
-        <p class="value" id="view-desc"></p>
-
-        <div class="flex items-center">
-          <h1 class="header min-width">Categoria</h1>
-          <p class="value" id="view-category"></p>
-        </div>
-
-        <div class="flex items-center">
-          <h1 class="header min-width">Data lembrete</h1>
-          <p class="value" id="view-date"></p>
-        </div>
-
-        <div class="flex items-center">
-          <h1 class="header min-width">Estado</h1>
-          <p class="value status-value" id="view-status"></p>
-        </div>
-
-        <div class="control-buttons-container">
-          <button id="edit-task-btn" class="button circle-button pink-background">
-            <iconify-icon icon="material-symbols:edit-rounded" width="24" height="24"></iconify-icon>
-          </button>
-
-          <button id="delete-task-btn" class="button circle-button pink-background">
-            <iconify-icon icon="ic:round-delete" width="24" height="24"></iconify-icon>
-          </button>
         </div>
       </div>
     </div>
 
-    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
     <script type="module" src="./script/tarefas.mjs"></script>
   </body>
 </html>
