@@ -2,6 +2,10 @@ import { database } from "../database/func.mjs";
 
 export function inicializarCriarTarefa(userID) {
   document.getElementById("form-add").addEventListener("submit", async (event) => {
+
+    // 🚫 NÃO CRIAR SE ESTAMOS A EDITAR
+    if (window.editar) return;
+
     event.preventDefault();
 
     const nomeVal = document.getElementById("add-name").value.trim();
@@ -34,9 +38,6 @@ export function inicializarCriarTarefa(userID) {
 
       await database.addData(`/tarefas/${userID}`, novaTarefa);
       sessionStorage.setItem("taskMessage", "Tarefa criada com sucesso!");
-
-      document.getElementById("add-status-label").style.display = "block";
-      document.getElementById("add-status").style.display = "block";
 
       window.location.reload();
 

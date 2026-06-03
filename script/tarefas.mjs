@@ -91,10 +91,40 @@ closeButtons.forEach(btn => {
   });
 });
 
+// FILTRO
+const filterBtn = document.getElementById("filter-btn");
+const filterMenu = document.getElementById("filter-menu");
+
+filterBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  filterMenu.classList.toggle("hide");
+});
+
+document.addEventListener("click", (e) => {
+  if (!filterBtn.contains(e.target) && !filterMenu.contains(e.target)) {
+    filterMenu.classList.add("hide");
+  }
+});
+
+document.querySelectorAll("#filter-menu button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const modo = btn.dataset.filter;
+    localStorage.setItem("modoVisualizacao", modo);
+    console.log(modo);
+    aplicarModoVisualizacao(modo);
+    filterMenu.classList.add("hide");
+  });
+});
+
 // CRIAR CARD
 function criarCard(id, tarefa, destinoLista) {
   const li = document.createElement("li");
   li.className = "task-item";
+
+  li.dataset.estado = tarefa.estado;
+  li.dataset.prioridade = tarefa.prioridade;
+  li.dataset.conclusao = tarefa.conclusao;
+  li.dataset.categoria = tarefa.categoria;
 
   // por defeito, todas têm padding
   li.style.paddingLeft = "9px";
@@ -170,7 +200,6 @@ function criarCard(id, tarefa, destinoLista) {
           hour: "2-digit",
           minute: "2-digit"
         });
-
 
   const arrow = document.createElement("iconify-icon");
   arrow.setAttribute("icon", "material-symbols:arrow-forward-ios-rounded");
@@ -275,36 +304,22 @@ onAuthStateChanged(auth, async user => {
           break;
       }
     });
+
+    document.getElementById("count-header-1").textContent = pendenteCount;
+    document.getElementById("count-header-2").textContent = progressoCount;
+    document.getElementById("count-header-3").textContent = concluidoCount;
+
+    setTimeout(() => {
+      let modoGuardado = localStorage.getItem("modoVisualizacao");
+
+      if (!modoGuardado) {
+        modoGuardado = "estado";
+        localStorage.setItem("modoVisualizacao", "estado");
+      }
+
+      aplicarModoVisualizacao(modoGuardado);
+    }, 10);
   }
-
-  if (pendenteCount === 0) mostrarMensagemVazia(todoList, "Pendente");
-  if (progressoCount === 0) mostrarMensagemVazia(doingList, "Em progresso");
-  if (concluidoCount === 0) mostrarMensagemVazia(doneList, "Concluído");
-
-  document.getElementById("count-pendente").textContent = pendenteCount;
-  document.getElementById("count-progresso").textContent = progressoCount;
-  document.getElementById("count-concluido").textContent = concluidoCount;
-});
-
-// FILTRO
-const filterBtn = document.getElementById("filter-btn");
-const filterMenu = document.getElementById("filter-menu");
-
-filterBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  filterMenu.classList.toggle("hide");
-});
-
-document.addEventListener("click", (e) => {
-  if (!filterBtn.contains(e.target) && !filterMenu.contains(e.target)) {
-    filterMenu.classList.add("hide");
-  }
-});
-
-document.querySelectorAll("#filter-menu button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    filterMenu.classList.add("hide");
-  });
 });
 
 // ORDENAR TAREFAS
@@ -340,5 +355,324 @@ function ordenarTarefas(tarefasObj) {
     if (diffPrioridade !== 0) return diffPrioridade;
 
     return dataA - dataB;
+  });
+}
+
+// MODO DE VISUALIZACAO
+async function aplicarModoVisualizacao(modo) {
+  await reconstruirTarefas(); // ← RECONSTRÓI TODAS AS TAREFAS
+
+  if (modo === "estado") organizarPorEstado();
+  else if (modo === "prioridade") organizarPorPrioridade();
+  else if (modo === "data") organizarPorData();
+  else if (modo === "categoria") organizarPorCategoria();
+}
+
+// ORGANIZAR POR ESTADO
+function organizarPorEstado() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  todoList.innerHTML = "";
+  doingList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  document.getElementById("list-header-1").textContent = "Pendente";
+  document.getElementById("list-header-2").textContent = "Em progresso";
+  document.getElementById("list-header-3").textContent = "Concluído";
+
+  const pendente = [];
+  const progresso = [];
+  const concluido = [];
+
+  tarefas.forEach(t => {
+    const estado = t.dataset.estado;
+
+    if (estado === "Pendente") pendente.push(t);
+    else if (estado === "Em progresso") progresso.push(t);
+    else concluido.push(t);
+  });
+
+  document.getElementById("count-header-1").textContent = pendente.length;
+  document.getElementById("count-header-2").textContent = progresso.length;
+  document.getElementById("count-header-3").textContent = concluido.length;
+
+  // renderizar tarefas
+  pendente.forEach(t => todoList.appendChild(t));
+  progresso.forEach(t => doingList.appendChild(t));
+  concluido.forEach(t => doneList.appendChild(t));
+
+  if (pendente.length === 0) mostrarMensagemVazia(todoList, "Pendente");
+  if (progresso.length === 0) mostrarMensagemVazia(doingList, "Em progresso");
+  if (concluido.length === 0) mostrarMensagemVazia(doneList, "Concluído");
+}
+
+// ORGANIZAR POR PRIORIDADE
+function organizarPorPrioridade() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas
+  todoList.innerHTML = "";
+  doingList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Prioridade Alta";
+  document.getElementById("list-header-2").textContent = "Prioridade Média";
+  document.getElementById("list-header-3").textContent = "Prioridade Baixa";
+
+  const alta = [];
+  const media = [];
+  const baixa = [];
+
+  tarefas.forEach(t => {
+    const prioridade = t.dataset.prioridade;
+
+    if (prioridade === "Alta") alta.push(t);
+    else if (prioridade === "Média") media.push(t);
+    else baixa.push(t);
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = alta.length;
+  document.getElementById("count-header-2").textContent = media.length;
+  document.getElementById("count-header-3").textContent = baixa.length;
+
+  // renderizar
+  alta.forEach(t => todoList.appendChild(t));
+  media.forEach(t => doingList.appendChild(t));
+  baixa.forEach(t => doneList.appendChild(t));
+
+  if (alta.length === 0) mostrarMensagemVazia(todoList, "Prioridade Alta");
+  if (media.length === 0) mostrarMensagemVazia(doingList, "Prioridade Média");
+  if (baixa.length === 0) mostrarMensagemVazia(doneList, "Prioridade Baixa");
+}
+
+// ORGANIZAR POR DATA
+function organizarPorData() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas existentes
+  todoList.innerHTML = "";
+  doingList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  // remover retângulos extra se existirem
+  const extra1 = document.getElementById("proximas-list");
+  const extra2 = document.getElementById("semdata-list");
+  if (extra1) extra1.parentElement.remove();
+  if (extra2) extra2.parentElement.remove();
+
+  // criar retângulo extra
+  criarRetanguloExtra("proximas-list", "purple", "list-header-4", "count-header-4");
+  criarRetanguloExtra("semdata-list", "yellow", "list-header-5", "count-header-5");
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Atrasadas";
+  document.getElementById("list-header-2").textContent = "Hoje";
+  document.getElementById("list-header-3").textContent = "Amanhã";
+  document.getElementById("list-header-4").textContent = "Próximas";
+  document.getElementById("list-header-5").textContent = "Sem data";
+
+  const atrasadas = [];
+  const hoje = [];
+  const amanha = [];
+  const proximas = [];
+  const semdata = [];
+
+  const agora = new Date();
+
+  tarefas.forEach(t => {
+    const conclusao = t.dataset.conclusao;
+
+    if (!conclusao || conclusao === "Sem data") {
+      semdata.push(t);
+      return;
+    }
+
+    const dataTarefa = new Date(conclusao);
+
+    // 1. ATRASADAS (data/hora já passou)
+    if (dataTarefa < agora) {
+      atrasadas.push(t);
+      return;
+    }
+
+    // 2. HOJE
+    const hojeData = new Date();
+    hojeData.setHours(0,0,0,0);
+
+    const dataLimpa = new Date(dataTarefa.getFullYear(), dataTarefa.getMonth(), dataTarefa.getDate());
+
+    if (dataLimpa.getTime() === hojeData.getTime()) {
+      hoje.push(t);
+      return;
+    }
+
+    // 3. AMANHÃ
+    const amanhaData = new Date(hojeData);
+    amanhaData.setDate(amanhaData.getDate() + 1);
+
+    if (dataLimpa.getTime() === amanhaData.getTime()) {
+      amanha.push(t);
+      return;
+    }
+
+    // 4. PRÓXIMAS
+    proximas.push(t);
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = atrasadas.length;
+  document.getElementById("count-header-2").textContent = hoje.length;
+  document.getElementById("count-header-3").textContent = amanha.length;
+  document.getElementById("count-header-4").textContent = proximas.length;
+  document.getElementById("count-header-5").textContent = semdata.length;
+
+  // renderizar
+  atrasadas.forEach(t => todoList.appendChild(t));
+  hoje.forEach(t => doingList.appendChild(t));
+  amanha.forEach(t => doneList.appendChild(t));
+  proximas.forEach(t => document.getElementById("proximas-list").appendChild(t));
+  semdata.forEach(t => document.getElementById("semdata-list").appendChild(t));
+
+  if (atrasadas.length === 0) mostrarMensagemVazia(todoList, "Atrasadas");
+  if (hoje.length === 0) mostrarMensagemVazia(doingList, "Hoje");
+  if (amanha.length === 0) mostrarMensagemVazia(doneList, "Amanhã");
+
+  const proximasList = document.getElementById("proximas-list");
+  const semdataList = document.getElementById("semdata-list");
+
+  if (proximas.length === 0) mostrarMensagemVazia(proximasList, "Próximas");
+  if (semdata.length === 0) mostrarMensagemVazia(semdataList, "Sem data");
+}
+
+// ORGANIZAR POR CATEGORIA
+function organizarPorCategoria() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas existentes
+  todoList.innerHTML = "";
+  doingList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  // remover retângulos extra se existirem
+  const extraCasa = document.getElementById("categoria-list-casa");
+  const extraSemCat = document.getElementById("categoria-list-semcat");
+  if (extraCasa) extraCasa.parentElement.remove();
+  if (extraSemCat) extraSemCat.parentElement.remove();
+
+  // criar retângulos extra
+  criarRetanguloExtra("categoria-list-casa", "purple extra-category", "categoria-header-casa", "categoria-count-casa");
+  criarRetanguloExtra("categoria-list-semcat", "yellow extra-category", "categoria-header-semcat", "categoria-count-semcat");
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Trabalho";
+  document.getElementById("list-header-2").textContent = "Estudos";
+  document.getElementById("list-header-3").textContent = "Lazer";
+  document.getElementById("categoria-header-casa").textContent = "Casa";
+  document.getElementById("categoria-header-semcat").textContent = "Sem categoria";
+
+  // arrays
+  const trabalho = [];
+  const estudos = [];
+  const lazer = [];
+  const casa = [];
+  const semcat = [];
+
+  // distribuir tarefas
+  tarefas.forEach(t => {
+    let cat = t.dataset.categoria;
+
+    if (!cat || cat === "Nenhuma") cat = "Sem categoria";
+
+    switch (cat) {
+      case "Trabalho":
+        trabalho.push(t);
+        break;
+      case "Estudos":
+        estudos.push(t);
+        break;
+      case "Lazer":
+        lazer.push(t);
+        break;
+      case "Casa":
+        casa.push(t);
+        break;
+      default:
+        semcat.push(t);
+        break;
+    }
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = trabalho.length;
+  document.getElementById("count-header-2").textContent = estudos.length;
+  document.getElementById("count-header-3").textContent = lazer.length;
+  document.getElementById("categoria-count-casa").textContent = casa.length;
+  document.getElementById("categoria-count-semcat").textContent = semcat.length;
+
+  // renderizar
+  trabalho.forEach(t => todoList.appendChild(t));
+  estudos.forEach(t => doingList.appendChild(t));
+  lazer.forEach(t => doneList.appendChild(t));
+  casa.forEach(t => document.getElementById("categoria-list-casa").appendChild(t));
+  semcat.forEach(t => document.getElementById("categoria-list-semcat").appendChild(t));
+
+  if (trabalho.length === 0) mostrarMensagemVazia(todoList, "Trabalho");
+  if (estudos.length === 0) mostrarMensagemVazia(doingList, "Estudos");
+  if (lazer.length === 0) mostrarMensagemVazia(doneList, "Lazer");
+
+  const casaList = document.getElementById("categoria-list-casa");
+  const semcatList = document.getElementById("categoria-list-semcat");
+
+  if (casa.length === 0) mostrarMensagemVazia(casaList, "Casa");
+  if (semcat.length === 0) mostrarMensagemVazia(semcatList, "Sem categoria");
+}
+
+// CRIAR ESPAÇO EXTRA
+function criarRetanguloExtra(idLista, cor, titulo, contadorId) {
+  const container = document.createElement("div");
+  container.className = `list-container ${cor}`; // ← ativa a sombra pela classe
+
+  container.innerHTML = `
+    <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="${titulo}" class="text" style="font-size:20px; font-weight:600;"></span>
+      </div>
+      <span id="${contadorId}" style="font-size:16px; font-weight:500; color:#555;">0</span>
+    </h2>
+    <ul id="${idLista}" class="tasks-list"></ul>
+  `;
+
+  document.getElementById("list-view").appendChild(container);
+}
+
+// REMOVER ESPAÇO EXTRA
+function removerRetangulosExtras() {
+  document.querySelectorAll(".extra-category").forEach(el => el.remove());
+  const extra1 = document.getElementById("proximas-list");
+  const extra2 = document.getElementById("semdata-list");
+  if (extra1) extra1.parentElement.remove();
+  if (extra2) extra2.parentElement.remove();
+}
+
+// CARREGAR TAREFAS NOVAMENTE 
+async function reconstruirTarefas() {
+  // limpar listas base
+  todoList.innerHTML = "";
+  doingList.innerHTML = "";
+  doneList.innerHTML = "";
+
+  // remover retângulos extra
+  removerRetangulosExtras();
+
+  const tarefas = await database.read(`/tarefas/${window.userID}`);
+
+  if (!tarefas) return;
+
+  const ordenadas = ordenarTarefas(tarefas);
+
+  ordenadas.forEach(([id, tarefa]) => {
+    criarCard(id, tarefa, todoList); // destino não importa, vai ser reorganizado depois
   });
 }

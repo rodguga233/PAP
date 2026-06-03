@@ -16,7 +16,7 @@
   </head>
 
   <body>
-    <div class="content-container" style="background-color: #F3F4F6;">
+    <div class="content-container" style="background-color: #F3F4F6; min-height:100%; height:auto;">
 
       <div id="notification" class="notification green-background">
         <iconify-icon icon="mdi:check-circle-outline" width="24" height="24"></iconify-icon>
@@ -37,8 +37,8 @@
             <!-- MENU DE FILTRO -->
             <div id="filter-menu" class="filter-menu hide">
               <button data-filter="estado">Estado</button>
-              <button data-filter="datas">Data</button>
-              <button data-filter="categorias">Categorias</button>
+              <button data-filter="data">Data</button>
+              <button data-filter="categoria">Categorias</button>
               <button data-filter="prioridade">Prioridade</button>
             </div>
 
@@ -69,9 +69,9 @@
           <div class="list-container pink">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="text" style="font-size:20px; font-weight:600;">Pendente</span>
+                <span id="list-header-1" class="text" style="font-size:20px; font-weight:600;">Pendente</span>
               </div>
-              <span id="count-pendente" style="font-size:16px; font-weight:500; color:#555;">0</span>
+              <span id="count-header-1" style="font-size:16px; font-weight:500; color:#555;">0</span>
             </h2>
             <ul id="todo-list" class="tasks-list"></ul>
           </div>
@@ -79,9 +79,9 @@
           <div class="list-container blue">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="text" style="font-size:20px; font-weight:600;">Em progresso</span>
+                <span id="list-header-2" class="text" style="font-size:20px; font-weight:600;">Em progresso</span>
               </div>
-              <span id="count-progresso" style="font-size:16px; font-weight:500; color:#555;">0</span>
+              <span id="count-header-2" style="font-size:16px; font-weight:500; color:#555;">0</span>
             </h2>
             <ul id="doing-list" class="tasks-list"></ul>
           </div>
@@ -89,9 +89,9 @@
           <div class="list-container green">
             <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="text" style="font-size:20px; font-weight:600;">Concluído</span>
+                <span id="list-header-3" class="text" style="font-size:20px; font-weight:600;">Concluído</span>
               </div>
-              <span id="count-concluido" style="font-size:16px; font-weight:500; color:#555;">0</span>
+              <span id="count-header-3" style="font-size:16px; font-weight:500; color:#555;">0</span>
             </h2>
             <ul id="done-list" class="tasks-list"></ul>
           </div>

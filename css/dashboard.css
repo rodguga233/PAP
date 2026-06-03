@@ -528,3 +528,16 @@ body.overflow-hidden {
   box-shadow: 3px 3px 0 #000;
 }
 
+/* RETÂNGULOS EXTRAS */
+.list-view .list-container.purple {
+  box-shadow: var(--purple-shadow);
+}
+
+.list-view .list-container.yellow {
+  box-shadow: var(--yellow-shadow);
+}
+
+:root {
+  --purple-shadow: 6px 6px 0px #b38bff;
+  --yellow-shadow: 6px 6px 0px #ffff8b;
+}

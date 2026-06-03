@@ -2,8 +2,9 @@ import { database } from "../database/func.mjs";
 
 export function inicializarEditarTarefa(userID) {
   document.getElementById("edit-task-btn").addEventListener("click", async () => {
-    const currentTaskID = document.getElementById("view-name").dataset.taskId || 
-                         window.currentTaskID;
+    const currentTaskID = document.getElementById("view-name").dataset.taskId || window.currentTaskID;
+    document.getElementById("view-name").dataset.taskId = currentTaskID;
+
     
     if (!currentTaskID) return alert("Erro: nenhuma tarefa selecionada.");
 
