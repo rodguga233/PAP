@@ -5,9 +5,9 @@ import { inicializarCriarTarefa } from "./criar-tarefa.mjs";
 import { inicializarEditarTarefa } from "./editar-tarefa.mjs";
 import { inicializarEliminarTarefa } from "./eliminar-tarefa.mjs";
 
-const todoList = document.getElementById("todo-list");
-const doingList = document.getElementById("doing-list");
-const doneList = document.getElementById("done-list");
+const list_1 = document.getElementById("list-1");
+const list_2 = document.getElementById("list-2");
+const list_3 = document.getElementById("list-3");
 
 const addTaskCTA = document.getElementById("add-task-cta");
 const setTaskOverlay = document.getElementById("set-task-overlay");
@@ -129,6 +129,14 @@ function criarCard(id, tarefa, destinoLista) {
   // por defeito, todas têm padding
   li.style.paddingLeft = "9px";
 
+  const modoVisualizacao = localStorage.getItem("modoVisualizacao") || "estado";
+
+  if (modoVisualizacao !== "estado") {
+    if (tarefa.estado === "Concluído") {
+      li.classList.add("concluida");
+    }
+  }
+
   if (tarefa.conclusao !== "Sem data") {
     const dataConclusao = new Date(tarefa.conclusao).getTime();
 
@@ -230,7 +238,7 @@ function criarCard(id, tarefa, destinoLista) {
           });
 
     document.getElementById("view-status").textContent = tarefa.estado;
-    document.getElementById("view-prioridade").textContent = tarefa.prioridade;
+    // document.getElementById("view-prioridade").textContent = tarefa.prioridade;
 
     viewTaskOverlay.classList.remove("hide");
     window.activeOverlay = viewTaskOverlay;
@@ -279,36 +287,7 @@ onAuthStateChanged(auth, async user => {
   // CARREGAR TAREFAS
   const tarefas = await database.read(`/tarefas/${window.userID}`);
 
-  let pendenteCount = 0;
-  let progressoCount = 0;
-  let concluidoCount = 0;
-
   if (tarefas) {
-    const ordenadas = ordenarTarefas(tarefas);
-
-    ordenadas.forEach(([id, tarefa]) => {
-      switch (tarefa.estado) {
-        case "Pendente":
-          criarCard(id, tarefa, todoList);
-          pendenteCount++;
-          break;
-
-        case "Em progresso":
-          criarCard(id, tarefa, doingList);
-          progressoCount++;
-          break;
-
-        case "Concluído":
-          criarCard(id, tarefa, doneList);
-          concluidoCount++;
-          break;
-      }
-    });
-
-    document.getElementById("count-header-1").textContent = pendenteCount;
-    document.getElementById("count-header-2").textContent = progressoCount;
-    document.getElementById("count-header-3").textContent = concluidoCount;
-
     setTimeout(() => {
       let modoGuardado = localStorage.getItem("modoVisualizacao");
 
@@ -330,6 +309,8 @@ function ordenarTarefas(tarefasObj) {
     const tarefaA = a[1];
     const tarefaB = b[1];
 
+    const agora = Date.now();
+
     const dataA = tarefaA.conclusao === "Sem data"
       ? Infinity
       : new Date(tarefaA.conclusao).getTime();
@@ -338,22 +319,40 @@ function ordenarTarefas(tarefasObj) {
       ? Infinity
       : new Date(tarefaB.conclusao).getTime();
 
-    const agora = Date.now();
-    const atrasadaA = dataA < agora;
-    const atrasadaB = dataB < agora;
+    const atrasadaA = dataA < agora && tarefaA.estado !== "Concluído";
+    const atrasadaB = dataB < agora && tarefaB.estado !== "Concluído";
 
+    const semDataA = tarefaA.conclusao === "Sem data" && tarefaA.estado !== "Concluído";
+    const semDataB = tarefaB.conclusao === "Sem data" && tarefaB.estado !== "Concluído";
+
+    const concluidaA = tarefaA.estado === "Concluído";
+    const concluidaB = tarefaB.estado === "Concluído";
+
+    // 1. ATRASADAS primeiro
     if (atrasadaA && !atrasadaB) return -1;
     if (!atrasadaA && atrasadaB) return 1;
 
-    if (atrasadaA && atrasadaB) {
-      const diffPrioridade = prioridadePeso[tarefaA.prioridade] - prioridadePeso[tarefaB.prioridade];
-      if (diffPrioridade !== 0) return diffPrioridade;
-      return dataA - dataB;
-    }
+    // 2. CONCLUÍDAS sempre no fim
+    if (concluidaA && !concluidaB) return 1;
+    if (!concluidaA && concluidaB) return -1;
 
+    // 3. SEM DATA depois das próximas
+    if (semDataA && !semDataB) return 1;
+    if (!semDataA && semDataB) return -1;
+
+    // 4. PRIORIDADE (Alta → Média → Baixa)
     const diffPrioridade = prioridadePeso[tarefaA.prioridade] - prioridadePeso[tarefaB.prioridade];
     if (diffPrioridade !== 0) return diffPrioridade;
 
+    // 5. Dentro da mesma prioridade:
+    //    - Atrasadas: mais atrasada primeiro (data mais antiga)
+    //    - Próximas: mais perto primeiro (data mais próxima)
+    //    - Sem data: mantém prioridade
+    //    - Concluídas: mais recentes primeiro
+    if (concluidaA && concluidaB) {
+      return dataB - dataA; // mais recente primeiro
+    }
+    
     return dataA - dataB;
   });
 }
@@ -372,9 +371,9 @@ async function aplicarModoVisualizacao(modo) {
 function organizarPorEstado() {
   const tarefas = Array.from(document.querySelectorAll(".task-item"));
 
-  todoList.innerHTML = "";
-  doingList.innerHTML = "";
-  doneList.innerHTML = "";
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
 
   document.getElementById("list-header-1").textContent = "Pendente";
   document.getElementById("list-header-2").textContent = "Em progresso";
@@ -397,13 +396,13 @@ function organizarPorEstado() {
   document.getElementById("count-header-3").textContent = concluido.length;
 
   // renderizar tarefas
-  pendente.forEach(t => todoList.appendChild(t));
-  progresso.forEach(t => doingList.appendChild(t));
-  concluido.forEach(t => doneList.appendChild(t));
+  pendente.forEach(t => list_1.appendChild(t));
+  progresso.forEach(t => list_2.appendChild(t));
+  concluido.forEach(t => list_3.appendChild(t));
 
-  if (pendente.length === 0) mostrarMensagemVazia(todoList, "Pendente");
-  if (progresso.length === 0) mostrarMensagemVazia(doingList, "Em progresso");
-  if (concluido.length === 0) mostrarMensagemVazia(doneList, "Concluído");
+  if (pendente.length === 0) mostrarMensagemVazia(list_1, "Pendente");
+  if (progresso.length === 0) mostrarMensagemVazia(list_2, "Em progresso");
+  if (concluido.length === 0) mostrarMensagemVazia(list_3, "Concluído");
 }
 
 // ORGANIZAR POR PRIORIDADE
@@ -411,9 +410,9 @@ function organizarPorPrioridade() {
   const tarefas = Array.from(document.querySelectorAll(".task-item"));
 
   // limpar listas
-  todoList.innerHTML = "";
-  doingList.innerHTML = "";
-  doneList.innerHTML = "";
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
 
   // headers
   document.getElementById("list-header-1").textContent = "Prioridade Alta";
@@ -438,13 +437,13 @@ function organizarPorPrioridade() {
   document.getElementById("count-header-3").textContent = baixa.length;
 
   // renderizar
-  alta.forEach(t => todoList.appendChild(t));
-  media.forEach(t => doingList.appendChild(t));
-  baixa.forEach(t => doneList.appendChild(t));
+  alta.forEach(t => list_1.appendChild(t));
+  media.forEach(t => list_2.appendChild(t));
+  baixa.forEach(t => list_3.appendChild(t));
 
-  if (alta.length === 0) mostrarMensagemVazia(todoList, "Prioridade Alta");
-  if (media.length === 0) mostrarMensagemVazia(doingList, "Prioridade Média");
-  if (baixa.length === 0) mostrarMensagemVazia(doneList, "Prioridade Baixa");
+  if (alta.length === 0) mostrarMensagemVazia(list_1, "Prioridade Alta");
+  if (media.length === 0) mostrarMensagemVazia(list_2, "Prioridade Média");
+  if (baixa.length === 0) mostrarMensagemVazia(list_3, "Prioridade Baixa");
 }
 
 // ORGANIZAR POR DATA
@@ -452,9 +451,9 @@ function organizarPorData() {
   const tarefas = Array.from(document.querySelectorAll(".task-item"));
 
   // limpar listas existentes
-  todoList.innerHTML = "";
-  doingList.innerHTML = "";
-  doneList.innerHTML = "";
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
 
   // remover retângulos extra se existirem
   const extra1 = document.getElementById("proximas-list");
@@ -529,15 +528,15 @@ function organizarPorData() {
   document.getElementById("count-header-5").textContent = semdata.length;
 
   // renderizar
-  atrasadas.forEach(t => todoList.appendChild(t));
-  hoje.forEach(t => doingList.appendChild(t));
-  amanha.forEach(t => doneList.appendChild(t));
+  atrasadas.forEach(t => list_1.appendChild(t));
+  hoje.forEach(t => list_2.appendChild(t));
+  amanha.forEach(t => list_3.appendChild(t));
   proximas.forEach(t => document.getElementById("proximas-list").appendChild(t));
   semdata.forEach(t => document.getElementById("semdata-list").appendChild(t));
 
-  if (atrasadas.length === 0) mostrarMensagemVazia(todoList, "Atrasadas");
-  if (hoje.length === 0) mostrarMensagemVazia(doingList, "Hoje");
-  if (amanha.length === 0) mostrarMensagemVazia(doneList, "Amanhã");
+  if (atrasadas.length === 0) mostrarMensagemVazia(list_1, "Atrasadas");
+  if (hoje.length === 0) mostrarMensagemVazia(list_2, "Hoje");
+  if (amanha.length === 0) mostrarMensagemVazia(list_3, "Amanhã");
 
   const proximasList = document.getElementById("proximas-list");
   const semdataList = document.getElementById("semdata-list");
@@ -551,9 +550,9 @@ function organizarPorCategoria() {
   const tarefas = Array.from(document.querySelectorAll(".task-item"));
 
   // limpar listas existentes
-  todoList.innerHTML = "";
-  doingList.innerHTML = "";
-  doneList.innerHTML = "";
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
 
   // remover retângulos extra se existirem
   const extraCasa = document.getElementById("categoria-list-casa");
@@ -612,15 +611,15 @@ function organizarPorCategoria() {
   document.getElementById("categoria-count-semcat").textContent = semcat.length;
 
   // renderizar
-  trabalho.forEach(t => todoList.appendChild(t));
-  estudos.forEach(t => doingList.appendChild(t));
-  lazer.forEach(t => doneList.appendChild(t));
+  trabalho.forEach(t => list_1.appendChild(t));
+  estudos.forEach(t => list_2.appendChild(t));
+  lazer.forEach(t => list_3.appendChild(t));
   casa.forEach(t => document.getElementById("categoria-list-casa").appendChild(t));
   semcat.forEach(t => document.getElementById("categoria-list-semcat").appendChild(t));
 
-  if (trabalho.length === 0) mostrarMensagemVazia(todoList, "Trabalho");
-  if (estudos.length === 0) mostrarMensagemVazia(doingList, "Estudos");
-  if (lazer.length === 0) mostrarMensagemVazia(doneList, "Lazer");
+  if (trabalho.length === 0) mostrarMensagemVazia(list_1, "Trabalho");
+  if (estudos.length === 0) mostrarMensagemVazia(list_2, "Estudos");
+  if (lazer.length === 0) mostrarMensagemVazia(list_3, "Lazer");
 
   const casaList = document.getElementById("categoria-list-casa");
   const semcatList = document.getElementById("categoria-list-semcat");
@@ -659,9 +658,9 @@ function removerRetangulosExtras() {
 // CARREGAR TAREFAS NOVAMENTE 
 async function reconstruirTarefas() {
   // limpar listas base
-  todoList.innerHTML = "";
-  doingList.innerHTML = "";
-  doneList.innerHTML = "";
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
 
   // remover retângulos extra
   removerRetangulosExtras();
@@ -673,6 +672,6 @@ async function reconstruirTarefas() {
   const ordenadas = ordenarTarefas(tarefas);
 
   ordenadas.forEach(([id, tarefa]) => {
-    criarCard(id, tarefa, todoList); // destino não importa, vai ser reorganizado depois
+    criarCard(id, tarefa, list_1); // destino não importa, vai ser reorganizado depois
   });
 }

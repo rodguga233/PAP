@@ -9,7 +9,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <linkhref="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/entry-page.css" />
   </head>
@@ -18,6 +19,13 @@
     <script type="module" src="./auntentica.mjs"></script>
 
     <div class="row height-full" style="background-color: #F3F4F6;">
+
+      <div id="notification" class="notification hide">
+        <iconify-icon id="notif-icon" icon="mdi:alert-circle-outline" width="24" height="24"></iconify-icon>
+        <p id="notif-text"></p>
+      </div>
+
+
       <!-- left side -->
       <div
         class="left-column flex flex-column height-full justify-center items-center"

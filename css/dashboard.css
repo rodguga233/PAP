@@ -3,6 +3,17 @@ body.overflow-hidden {
   overflow: hidden;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-display:none;  /* Firefox */
+}
+
 .content-container {
   padding-block: var(--space-32);
 }
@@ -290,9 +301,7 @@ body.overflow-hidden {
 }
 
 .notification {
-  /* relative to body */
-  position: fixed; /* fixed even on scroll */
-  /* hide */
+  position: fixed;
   top: -100%;
   left: 50%;
   transform: translateX(-50%);
@@ -540,4 +549,16 @@ body.overflow-hidden {
 :root {
   --purple-shadow: 6px 6px 0px #b38bff;
   --yellow-shadow: 6px 6px 0px #ffff8b;
+}
+
+/* TAREFAS CONCLUIDAS */
+.task-item.concluida {
+  opacity: 0.55;
+}
+
+.task-item.concluida .task-name,
+.task-item.concluida .task-category,
+.task-item.concluida .task-due-date,
+.task-item.concluida .prioridade {
+  color: #545454 !important;
 }

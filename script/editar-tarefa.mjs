@@ -32,8 +32,14 @@ export function inicializarEditarTarefa(userID) {
 
         if (tarefa.conclusao !== "Sem data") {
           const dt = new Date(tarefa.conclusao);
-          const iso = dt.toISOString().slice(0, 16);
-          document.getElementById("add-date").value = iso;
+
+          const ano = dt.getFullYear();
+          const mes = String(dt.getMonth() + 1).padStart(2, "0");
+          const dia = String(dt.getDate()).padStart(2, "0");
+          const horas = String(dt.getHours()).padStart(2, "0");
+          const minutos = String(dt.getMinutes()).padStart(2, "0");
+
+          document.getElementById("add-date").value = `${ano}-${mes}-${dia}T${horas}:${minutos}`;
         }
       }
     } catch (error) {
