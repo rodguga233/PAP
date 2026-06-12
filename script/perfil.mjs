@@ -28,6 +28,8 @@ const backBtn = document.getElementById("back-btn");
 const passwordError = document.getElementById("password-error");
 const profilePhoto = document.getElementById("profile-photo");
 const photoInput = document.getElementById("photo-input");
+const passConfirmInput = document.getElementById("password-confirm");
+const passMatchError = document.getElementById("password-match-error");
 
 passwordError.style.display = "none";
 
@@ -80,6 +82,47 @@ saveBtn.addEventListener("click", async () => {
 
   const userID = user.uid;
 
+  // VALIDAR PASSWORD E CONFIRMAÇÃO
+  const novaPass = passInput.value.trim();
+  const confirmarPass = passConfirmInput.value.trim();
+
+  if (novaPass !== "" || confirmarPass !== "") {
+
+    // 1. Verificar se coincidem
+    if (novaPass !== confirmarPass) {
+      passMatchError.style.display = "block";
+      return;
+    } else {
+      passMatchError.style.display = "none";
+    }
+
+    // 2. Verificar tamanho mínimo
+    if (novaPass.length < 6) {
+      passwordError.style.display = "block";
+      return;
+    } else {
+      passwordError.style.display = "none";
+    }
+
+    // 3. Atualizar password no Firebase
+    try {
+      await updatePassword(user, novaPass); 
+      passInput.value = "";
+      passConfirmInput.value = "";
+    } catch (error) {
+      console.error(error);
+      if (error.code === "auth/requires-recent-login") {
+        showPopup("A tua sessão expirou. Faz login novamente.", "yellow-background");
+        signOut(auth);
+        window.location.href = "index.html";
+        return;
+      }
+      showPopup("Erro ao atualizar password.", "red-background");
+      console.log(error);
+      return;
+    }
+  }
+
   let fotoFinal = fotoAntigaURL;
 
   // UPLOAD DA FOTO
@@ -111,32 +154,6 @@ saveBtn.addEventListener("click", async () => {
     notificacoes: notifInput.checked,
     fotoPerfil: fotoFinal || "Nenhuma"
   });
-
-  // Atualizar password
-  const novaPass = passInput.value.trim();
-  if (novaPass !== "") {
-    if (novaPass.length < 6) {
-      passwordError.style.display = "block";
-      return;
-    }
-
-    try {
-      await updatePassword(user, novaPass);
-      showPopup("Password atualizada com sucesso!");
-      passInput.value = "";
-      passwordError.style.display = "none";
-    } catch (error) {
-      console.error(error);
-      if (error.code === "auth/requires-recent-login") {
-        showPopup("A tua sessão expirou. Faz login novamente.", "yellow-background");
-        signOut(auth);
-        window.location.href = "index.html";
-        return;
-      }
-      showPopup("Erro ao atualizar password.", "red-background");
-      return;
-    }
-  }
 
   showPopup("Perfil atualizado com sucesso!");
 });

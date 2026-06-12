@@ -319,7 +319,8 @@ body {
 }
 
 .notification.show {
-  top: 0;
+  top: 10px;
+  border-radius: 8px;
 }
 
 /* media queries */

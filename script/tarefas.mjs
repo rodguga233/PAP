@@ -120,14 +120,12 @@ document.querySelectorAll("#filter-menu button").forEach(btn => {
 function criarCard(id, tarefa, destinoLista) {
   const li = document.createElement("li");
   li.className = "task-item";
+  li.style.paddingLeft = "9px";
 
   li.dataset.estado = tarefa.estado;
   li.dataset.prioridade = tarefa.prioridade;
   li.dataset.conclusao = tarefa.conclusao;
   li.dataset.categoria = tarefa.categoria;
-
-  // por defeito, todas têm padding
-  li.style.paddingLeft = "9px";
 
   const modoVisualizacao = localStorage.getItem("modoVisualizacao") || "estado";
 
@@ -152,11 +150,6 @@ function criarCard(id, tarefa, destinoLista) {
   btn.style.alignItems = "center";
   btn.style.width = "100%";
   btn.style.position = "relative";
-
-  const esquerda = document.createElement("div");
-  esquerda.style.display = "flex";
-  esquerda.style.flexDirection = "column";
-  esquerda.style.flex = "1";
 
   const nome = document.createElement("p");
   nome.className = "task-name";
@@ -184,6 +177,11 @@ function criarCard(id, tarefa, destinoLista) {
   if (tarefa.prioridade === "Média") prioridade.classList.add("prioridade-media");
   if (tarefa.prioridade === "Baixa") prioridade.classList.add("prioridade-baixa");
   prioridade.textContent = tarefa.prioridade || "Baixa";
+
+  const esquerda = document.createElement("div");
+  esquerda.style.display = "flex";
+  esquerda.style.flexDirection = "column";
+  esquerda.style.flex = "1";
 
   esquerda.appendChild(linhaTopo);
   esquerda.appendChild(prioridade);
@@ -238,7 +236,7 @@ function criarCard(id, tarefa, destinoLista) {
           });
 
     document.getElementById("view-status").textContent = tarefa.estado;
-    // document.getElementById("view-prioridade").textContent = tarefa.prioridade;
+    document.getElementById("view-prioridade").textContent = tarefa.prioridade;
 
     viewTaskOverlay.classList.remove("hide");
     window.activeOverlay = viewTaskOverlay;
@@ -455,12 +453,6 @@ function organizarPorData() {
   list_2.innerHTML = "";
   list_3.innerHTML = "";
 
-  // remover retângulos extra se existirem
-  const extra1 = document.getElementById("proximas-list");
-  const extra2 = document.getElementById("semdata-list");
-  if (extra1) extra1.parentElement.remove();
-  if (extra2) extra2.parentElement.remove();
-
   // criar retângulo extra
   criarRetanguloExtra("proximas-list", "purple", "list-header-4", "count-header-4");
   criarRetanguloExtra("semdata-list", "yellow", "list-header-5", "count-header-5");
@@ -554,12 +546,6 @@ function organizarPorCategoria() {
   list_2.innerHTML = "";
   list_3.innerHTML = "";
 
-  // remover retângulos extra se existirem
-  const extraCasa = document.getElementById("categoria-list-casa");
-  const extraSemCat = document.getElementById("categoria-list-semcat");
-  if (extraCasa) extraCasa.parentElement.remove();
-  if (extraSemCat) extraSemCat.parentElement.remove();
-
   // criar retângulos extra
   criarRetanguloExtra("categoria-list-casa", "purple extra-category", "categoria-header-casa", "categoria-count-casa");
   criarRetanguloExtra("categoria-list-semcat", "yellow extra-category", "categoria-header-semcat", "categoria-count-semcat");
@@ -648,11 +634,16 @@ function criarRetanguloExtra(idLista, cor, titulo, contadorId) {
 
 // REMOVER ESPAÇO EXTRA
 function removerRetangulosExtras() {
-  document.querySelectorAll(".extra-category").forEach(el => el.remove());
+
   const extra1 = document.getElementById("proximas-list");
   const extra2 = document.getElementById("semdata-list");
   if (extra1) extra1.parentElement.remove();
   if (extra2) extra2.parentElement.remove();
+
+  const extraCasa = document.getElementById("categoria-list-casa");
+  const extraSemCat = document.getElementById("categoria-list-semcat");
+  if (extraCasa) extraCasa.parentElement.remove();
+  if (extraSemCat) extraSemCat.parentElement.remove();
 }
 
 // CARREGAR TAREFAS NOVAMENTE 

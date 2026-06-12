@@ -80,5 +80,6 @@
 }
 
 .notification.show {
-  top: 0px;
+  top: 10px;
+  border-radius: 8px;
 }

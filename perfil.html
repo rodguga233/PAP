@@ -39,11 +39,20 @@
         <label>Email</label>
         <input type="email" id="email" readonly>
 
-        <label>Password (deixar vazio para não alterar)</label>
+        <label>Password</label>
         <input type="password" id="password">
         <label style="font-size: 14px; font-weight: bold; color: #ff0505; display: block; margin-top: 0px;" id="password-error"> 
           A password deve ter pelo menos 6 caracteres. 
         </label>
+
+        <label>Confirmar Password</label>
+        <input type="password" id="password-confirm">
+
+        <label id="password-match-error" 
+          style="font-size: 14px; font-weight: bold; color: #ff0505; display: none; margin-top: 0px;">
+          As passwords não coincidem.
+        </label>
+
 
         <label class="notif-label" 
           style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
