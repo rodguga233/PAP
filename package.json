@@ -20,6 +20,7 @@
   "homepage": "https://github.com/rodguga233/PAP#readme",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "firebase": "^12.6.0"
+    "firebase": "^12.6.0",
+    "moment-timezone": "^0.6.2"
   }
 }

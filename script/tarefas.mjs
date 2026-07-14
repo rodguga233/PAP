@@ -1,147 +1,668 @@
 import { database } from "../database/func.mjs";
-import { auth } from "../database/db.mjs"; 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { auth } from "../database/db.mjs";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { inicializarCriarTarefa } from "./criar-tarefa.mjs";
+import { inicializarEditarTarefa } from "./editar-tarefa.mjs";
+import { inicializarEliminarTarefa } from "./eliminar-tarefa.mjs";
 
-let tbody = null;
+const list_1 = document.getElementById("list-1");
+const list_2 = document.getElementById("list-2");
+const list_3 = document.getElementById("list-3");
 
-console.clear();
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM carregado com sucesso!!!");
+const addTaskCTA = document.getElementById("add-task-cta");
+const setTaskOverlay = document.getElementById("set-task-overlay");
+const viewTaskOverlay = document.getElementById("view-task-overlay");
+const closeButtons = document.querySelectorAll(".close-button");
+const notification = document.getElementById("notification");
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      alert("Nenhum utilizador autenticado. Faça o login.");
-      return (window.location.href = "index.html");
+window.activeOverlay = null;
+window.currentTaskID = null;
+window.userID = null;
+window.editar = false;
+
+// MOSTRAR NOTIFICAÇÃO
+const savedMessage = sessionStorage.getItem("taskMessage");
+if (savedMessage) {
+  notification.querySelector("p").textContent = savedMessage;
+  notification.classList.add("show");
+
+  sessionStorage.removeItem("taskMessage");
+
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 3000);
+}
+
+// PROFILE DROPDOWN
+const profileIcon = document.getElementById("profile-icon");
+const dropdown = document.getElementById("profile-dropdown");
+
+profileIcon.addEventListener("click", () => {
+  dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+});
+
+document.addEventListener("click", (e) => {
+  if (!profileIcon.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+// PERFIL
+document.getElementById("edit-profile").addEventListener("click", () => {
+  window.location.href = "perfil.html";
+});
+
+// SIGN OUT
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
+
+// ABRIR ADD TASK
+addTaskCTA.addEventListener("click", () => {
+  editar = false;
+  document.getElementById("overlay-title").textContent = "Adicionar tarefa";
+  document.getElementById("overlay-submit-btn").textContent = "Guardar";
+  document.getElementById("form-add").reset();
+  document.getElementById("add-status-label").style.display = "none";
+  document.getElementById("add-status").style.display = "none";
+
+  setTaskOverlay.classList.remove("hide");
+  activeOverlay = setTaskOverlay;
+  document.body.classList.add("overflow-hidden");
+});
+
+// FECHAR OVERLAYS
+closeButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (window.editar) {
+      window.editar = false;
+      document.getElementById("overlay-title").textContent = "Adicionar tarefa";
+      document.getElementById("overlay-submit-btn").textContent = "Guardar";
+      document.getElementById("form-add").reset();
     }
 
-    const userID = user.uid;
-    console.log("Utilizador autenticado:", userID);
+    document.getElementById("add-status-label").style.display = "block";
+    document.getElementById("add-status").style.display = "block";
 
-    var utilizador = await database.read(`/users/${userID}/nome`);
-    utilizador = "Ola " + utilizador;
-    document.getElementById("nome").textContent = utilizador;
-
-    const tarefas = await database.read(`/tarefas/${userID}`);
-
-    if (tarefas) {
-      const tabela = document.createElement("table");
-      tabela.id = "tabelaTarefas";
-      tabela.style.width = "100%";
-      tabela.style.marginTop = "20px";
-      tabela.style.borderCollapse = "collapse";
-      tabela.border = "1";
-
-      const thead = document.createElement("thead");
-      thead.style.height = "30px";
-      thead.style.backgroundColor = "#A9A9A9";
-      thead.style.color = "black";
-
-      const trHead = document.createElement("tr");
-      ["ID", "Tarefa", "Categoria", "Descrição", "Lembrete", "Estado", "Ações"].forEach(text => {
-        const th = document.createElement("th");
-        th.textContent = text;
-        trHead.appendChild(th);
-      });
-
-      thead.appendChild(trHead);
-      tabela.appendChild(thead);
-
-      tbody = document.createElement("tbody");
-      tbody.style.textAlign = "left";
-      tbody.style.height = "25px";
-      tbody.style.backgroundColor = "#f2f2f2";
-
-      Object.entries(tarefas).forEach(gerarTabela);
-      tabela.appendChild(tbody);
-
-      const divTabela = document.getElementById("tabela");
-      divTabela.innerHTML = "";
-      divTabela.appendChild(tabela);
-
-    } else {
-      const divTabela = document.getElementById("tabela");
-      divTabela.innerHTML = "";
-
-      const mensagem = document.createElement("p");
-      mensagem.textContent = "Nenhuma tarefa criada";
-      mensagem.style.textAlign = "center";
-      mensagem.style.fontWeight = "bold";
-      mensagem.style.marginTop = "20px";
-      mensagem.style.fontSize = "18px";
-
-      divTabela.appendChild(mensagem);
-    }
+    window.activeOverlay.classList.add("hide");
+    window.activeOverlay = null;
+    document.body.classList.remove("overflow-hidden");
   });
 });
 
-// tabela
-function gerarTabela([id, tarefa]) {
-  const tr = document.createElement("tr");
+// FILTRO
+const filterBtn = document.getElementById("filter-btn");
+const filterMenu = document.getElementById("filter-menu");
 
-  const tdId = document.createElement("td");
-  tdId.textContent = id;
-  tr.appendChild(tdId);
+filterBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  filterMenu.classList.toggle("hide");
+});
 
-  const tdTarefa = document.createElement("td");
-  tdTarefa.textContent = tarefa.tarefa;
-  tr.appendChild(tdTarefa);
+document.addEventListener("click", (e) => {
+  if (!filterBtn.contains(e.target) && !filterMenu.contains(e.target)) {
+    filterMenu.classList.add("hide");
+  }
+});
 
-  const tdCategoria = document.createElement("td");
-  tdCategoria.textContent = tarefa.categoria || "sem categoria";
-  tr.appendChild(tdCategoria);
+document.querySelectorAll("#filter-menu button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const modo = btn.dataset.filter;
+    localStorage.setItem("modoVisualizacao", modo);
+    console.log(modo);
+    aplicarModoVisualizacao(modo);
+    filterMenu.classList.add("hide");
+  });
+});
 
-  const tdDescricao = document.createElement("td");
-  let descricao_txt = tarefa.descricao;
-  if (descricao_txt.length > 35) descricao_txt = descricao_txt.slice(0, 35) + "...";
-  tdDescricao.textContent = descricao_txt;
-  tr.appendChild(tdDescricao);
+// CRIAR CARD
+function criarCard(id, tarefa, destinoLista) {
+  const li = document.createElement("li");
+  li.className = "task-item";
+  li.style.paddingLeft = "9px";
 
-  const tdLembrete = document.createElement("td");
-  if (tarefa.lembrar === "Sem lembrete") {
-    tdLembrete.textContent = tarefa.lembrar;
-    tr.appendChild(tdLembrete);
-  } else {
-    let lembrete_txt = tarefa.lembrar;
-    lembrete_txt = new Date(lembrete_txt).toLocaleString("pt-PT", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-    tdLembrete.textContent = lembrete_txt;
-    tr.appendChild(tdLembrete);
+  li.dataset.estado = tarefa.estado;
+  li.dataset.prioridade = tarefa.prioridade;
+  li.dataset.conclusao = tarefa.conclusao;
+  li.dataset.categoria = tarefa.categoria;
+
+  const modoVisualizacao = localStorage.getItem("modoVisualizacao") || "estado";
+
+  if (modoVisualizacao !== "estado") {
+    if (tarefa.estado === "Concluído") {
+      li.classList.add("concluida");
+    }
   }
 
-  const tdEstado = document.createElement("td");
-  tdEstado.textContent = tarefa.estado;
-  tr.appendChild(tdEstado);
+  if (tarefa.conclusao !== "Sem data") {
+    const dataConclusao = new Date(tarefa.conclusao).getTime();
 
-  const tdAcoes = document.createElement("td");
-  tdAcoes.style.textAlign = "center";
+    if (dataConclusao < Date.now() && tarefa.estado !== "Concluído") {
+      li.classList.add("atrasada");
+      li.style.paddingLeft = "5px";
+    }
+  }
 
-  const botaoEditar = document.createElement("button");
-  botaoEditar.style.border = "1px solid black";
-  botaoEditar.style.backgroundColor = "#3457D5";
-  botaoEditar.textContent = "Editar";
-  botaoEditar.style.color = "white";
-  botaoEditar.addEventListener("click", () => {
-    window.location.href = `editarTarefa.html?idTarefa=${id}`;
+  const btn = document.createElement("button");
+  btn.className = "task-button";
+  btn.style.display = "flex";
+  btn.style.alignItems = "center";
+  btn.style.width = "100%";
+  btn.style.position = "relative";
+
+  const nome = document.createElement("p");
+  nome.className = "task-name";
+  nome.style.fontSize = "15px";
+  nome.style.fontWeight = "600";
+  nome.textContent = tarefa.tarefa;
+
+  const categoria = document.createElement("span");
+  categoria.className = "task-category";
+  categoria.style.fontSize = "13px";
+  categoria.style.color = "#666";
+  categoria.style.marginLeft = "6px";
+  categoria.textContent =
+    tarefa.categoria === "Nenhuma" ? "" : tarefa.categoria;
+
+  const linhaTopo = document.createElement("div");
+  linhaTopo.style.display = "flex";
+  linhaTopo.style.alignItems = "center";
+  linhaTopo.appendChild(nome);
+  linhaTopo.appendChild(categoria);
+
+  const prioridade = document.createElement("span");
+  prioridade.classList.add("prioridade");
+  if (tarefa.prioridade === "Alta") prioridade.classList.add("prioridade-alta");
+  if (tarefa.prioridade === "Média") prioridade.classList.add("prioridade-media");
+  if (tarefa.prioridade === "Baixa") prioridade.classList.add("prioridade-baixa");
+  prioridade.textContent = tarefa.prioridade || "Baixa";
+
+  const esquerda = document.createElement("div");
+  esquerda.style.display = "flex";
+  esquerda.style.flexDirection = "column";
+  esquerda.style.flex = "1";
+
+  esquerda.appendChild(linhaTopo);
+  esquerda.appendChild(prioridade);
+
+  const data = document.createElement("p");
+  data.className = "task-due-date";
+  data.style.fontSize = "14px";
+  data.style.color = "#333";
+  data.style.position = "absolute";
+  data.style.left = "50%";
+  data.style.transform = "translateX(-50%)";
+  data.style.textAlign = "center";
+  data.style.width = "max-content";
+
+  data.textContent =
+    tarefa.conclusao === "Sem data"
+      ? "Sem data"
+      : new Date(tarefa.conclusao).toLocaleString("pt-PT", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+  const arrow = document.createElement("iconify-icon");
+  arrow.setAttribute("icon", "material-symbols:arrow-forward-ios-rounded");
+  arrow.setAttribute("width", "18");
+  arrow.setAttribute("height", "18");
+
+  btn.appendChild(esquerda);
+  btn.appendChild(data);
+  btn.appendChild(arrow);
+  li.appendChild(btn);
+
+  btn.addEventListener("click", () => {
+    window.currentTaskID = id;
+    document.getElementById("view-name").textContent = tarefa.tarefa;
+    document.getElementById("view-desc").textContent = tarefa.descricao;
+    document.getElementById("view-category").textContent =
+      tarefa.categoria === "Nenhuma" ? "Sem categoria" : tarefa.categoria;
+
+    document.getElementById("view-date").textContent =
+      tarefa.conclusao === "Sem data"
+        ? "Sem data"
+        : new Date(tarefa.conclusao).toLocaleString("pt-PT", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+    document.getElementById("view-status").textContent = tarefa.estado;
+    document.getElementById("view-prioridade").textContent = tarefa.prioridade;
+
+    viewTaskOverlay.classList.remove("hide");
+    window.activeOverlay = viewTaskOverlay;
+    document.body.classList.add("overflow-hidden");
   });
 
-  const botaoApagar = document.createElement("button");
-  botaoApagar.style.border = "1px solid black";
-  botaoApagar.style.backgroundColor = "#ed0e0eff";
-  botaoApagar.textContent = "X";
-  botaoApagar.style.color = "white";
-  botaoApagar.style.marginLeft = "10px";
-  botaoApagar.addEventListener("click", () => {
-    window.location.href = `apagarTarefa.html?idTarefa=${id}`;
+  destinoLista.appendChild(li);
+}
+
+// MENSAGEM 
+function mostrarMensagemVazia(destinoLista, nomeCategoria) {
+  const msg = document.createElement("li");
+  msg.className = "task-item";
+  msg.style.textAlign = "center";
+  msg.style.color = "#777";
+  msg.style.padding = "5px";
+  msg.style.fontStyle = "italic";
+  msg.textContent = `Sem tarefas em "${nomeCategoria}"`;
+  destinoLista.appendChild(msg);
+}
+
+// CARREGAR TAREFAS
+onAuthStateChanged(auth, async user => {
+  if (!user) return (window.location.href = "index.html");
+
+  window.userID = user.uid;
+
+  const userData = await database.read(`/users/${window.userID}`);
+
+  const profileIcon = document.getElementById("profile-icon");
+  const userName = document.getElementById("user-name");
+
+  userName.textContent = userData?.nome || "Utilizador";
+
+  if (userData?.fotoPerfil && userData.fotoPerfil !== "Nenhuma") {
+    profileIcon.src = userData.fotoPerfil;
+  } else {
+    profileIcon.src = "img/perfil.jpg";
+  }
+
+  // Inicializar módulos de criar, editar e eliminar tarefas
+  inicializarCriarTarefa(window.userID);
+  inicializarEditarTarefa(window.userID);
+  inicializarEliminarTarefa(window.userID);
+
+  // CARREGAR TAREFAS
+  const tarefas = await database.read(`/tarefas/${window.userID}`);
+
+  if (tarefas) {
+    setTimeout(() => {
+      let modoGuardado = localStorage.getItem("modoVisualizacao");
+
+      if (!modoGuardado) {
+        modoGuardado = "estado";
+        localStorage.setItem("modoVisualizacao", "estado");
+      }
+
+      aplicarModoVisualizacao(modoGuardado);
+    }, 10);
+  }
+});
+
+// ORDENAR TAREFAS
+function ordenarTarefas(tarefasObj) {
+  const prioridadePeso = { "Alta": 1, "Média": 2, "Baixa": 3 };
+
+  return Object.entries(tarefasObj).sort((a, b) => {
+    const tarefaA = a[1];
+    const tarefaB = b[1];
+
+    const agora = Date.now();
+
+    const dataA = tarefaA.conclusao === "Sem data"
+      ? Infinity
+      : new Date(tarefaA.conclusao).getTime();
+
+    const dataB = tarefaB.conclusao === "Sem data"
+      ? Infinity
+      : new Date(tarefaB.conclusao).getTime();
+
+    const atrasadaA = dataA < agora && tarefaA.estado !== "Concluído";
+    const atrasadaB = dataB < agora && tarefaB.estado !== "Concluído";
+
+    const semDataA = tarefaA.conclusao === "Sem data" && tarefaA.estado !== "Concluído";
+    const semDataB = tarefaB.conclusao === "Sem data" && tarefaB.estado !== "Concluído";
+
+    const concluidaA = tarefaA.estado === "Concluído";
+    const concluidaB = tarefaB.estado === "Concluído";
+
+    // 1. ATRASADAS primeiro
+    if (atrasadaA && !atrasadaB) return -1;
+    if (!atrasadaA && atrasadaB) return 1;
+
+    // 2. CONCLUÍDAS sempre no fim
+    if (concluidaA && !concluidaB) return 1;
+    if (!concluidaA && concluidaB) return -1;
+
+    // 3. SEM DATA depois das próximas
+    if (semDataA && !semDataB) return 1;
+    if (!semDataA && semDataB) return -1;
+
+    // 4. PRIORIDADE (Alta → Média → Baixa)
+    const diffPrioridade = prioridadePeso[tarefaA.prioridade] - prioridadePeso[tarefaB.prioridade];
+    if (diffPrioridade !== 0) return diffPrioridade;
+
+    // 5. Dentro da mesma prioridade:
+    //    - Atrasadas: mais atrasada primeiro (data mais antiga)
+    //    - Próximas: mais perto primeiro (data mais próxima)
+    //    - Sem data: mantém prioridade
+    //    - Concluídas: mais recentes primeiro
+    if (concluidaA && concluidaB) {
+      return dataB - dataA; // mais recente primeiro
+    }
+    
+    return dataA - dataB;
+  });
+}
+
+// MODO DE VISUALIZACAO
+async function aplicarModoVisualizacao(modo) {
+  await reconstruirTarefas(); // ← RECONSTRÓI TODAS AS TAREFAS
+
+  if (modo === "estado") organizarPorEstado();
+  else if (modo === "prioridade") organizarPorPrioridade();
+  else if (modo === "data") organizarPorData();
+  else if (modo === "categoria") organizarPorCategoria();
+}
+
+// ORGANIZAR POR ESTADO
+function organizarPorEstado() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
+
+  document.getElementById("list-header-1").textContent = "Pendente";
+  document.getElementById("list-header-2").textContent = "Em progresso";
+  document.getElementById("list-header-3").textContent = "Concluído";
+
+  const pendente = [];
+  const progresso = [];
+  const concluido = [];
+
+  tarefas.forEach(t => {
+    const estado = t.dataset.estado;
+
+    if (estado === "Pendente") pendente.push(t);
+    else if (estado === "Em progresso") progresso.push(t);
+    else concluido.push(t);
   });
 
-  tdAcoes.appendChild(botaoEditar);
-  tdAcoes.appendChild(botaoApagar);
-  tr.appendChild(tdAcoes);
+  document.getElementById("count-header-1").textContent = pendente.length;
+  document.getElementById("count-header-2").textContent = progresso.length;
+  document.getElementById("count-header-3").textContent = concluido.length;
 
-  tbody.appendChild(tr);
+  // renderizar tarefas
+  pendente.forEach(t => list_1.appendChild(t));
+  progresso.forEach(t => list_2.appendChild(t));
+  concluido.forEach(t => list_3.appendChild(t));
+
+  if (pendente.length === 0) mostrarMensagemVazia(list_1, "Pendente");
+  if (progresso.length === 0) mostrarMensagemVazia(list_2, "Em progresso");
+  if (concluido.length === 0) mostrarMensagemVazia(list_3, "Concluído");
+}
+
+// ORGANIZAR POR PRIORIDADE
+function organizarPorPrioridade() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Prioridade Alta";
+  document.getElementById("list-header-2").textContent = "Prioridade Média";
+  document.getElementById("list-header-3").textContent = "Prioridade Baixa";
+
+  const alta = [];
+  const media = [];
+  const baixa = [];
+
+  tarefas.forEach(t => {
+    const prioridade = t.dataset.prioridade;
+
+    if (prioridade === "Alta") alta.push(t);
+    else if (prioridade === "Média") media.push(t);
+    else baixa.push(t);
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = alta.length;
+  document.getElementById("count-header-2").textContent = media.length;
+  document.getElementById("count-header-3").textContent = baixa.length;
+
+  // renderizar
+  alta.forEach(t => list_1.appendChild(t));
+  media.forEach(t => list_2.appendChild(t));
+  baixa.forEach(t => list_3.appendChild(t));
+
+  if (alta.length === 0) mostrarMensagemVazia(list_1, "Prioridade Alta");
+  if (media.length === 0) mostrarMensagemVazia(list_2, "Prioridade Média");
+  if (baixa.length === 0) mostrarMensagemVazia(list_3, "Prioridade Baixa");
+}
+
+// ORGANIZAR POR DATA
+function organizarPorData() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas existentes
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
+
+  // criar retângulo extra
+  criarRetanguloExtra("proximas-list", "purple", "list-header-4", "count-header-4");
+  criarRetanguloExtra("semdata-list", "yellow", "list-header-5", "count-header-5");
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Atrasadas";
+  document.getElementById("list-header-2").textContent = "Hoje";
+  document.getElementById("list-header-3").textContent = "Amanhã";
+  document.getElementById("list-header-4").textContent = "Próximas";
+  document.getElementById("list-header-5").textContent = "Sem data";
+
+  const atrasadas = [];
+  const hoje = [];
+  const amanha = [];
+  const proximas = [];
+  const semdata = [];
+
+  const agora = new Date();
+
+  tarefas.forEach(t => {
+    const conclusao = t.dataset.conclusao;
+
+    if (!conclusao || conclusao === "Sem data") {
+      semdata.push(t);
+      return;
+    }
+
+    const dataTarefa = new Date(conclusao);
+
+    // 1. ATRASADAS (data/hora já passou)
+    if (dataTarefa < agora) {
+      atrasadas.push(t);
+      return;
+    }
+
+    // 2. HOJE
+    const hojeData = new Date();
+    hojeData.setHours(0,0,0,0);
+
+    const dataLimpa = new Date(dataTarefa.getFullYear(), dataTarefa.getMonth(), dataTarefa.getDate());
+
+    if (dataLimpa.getTime() === hojeData.getTime()) {
+      hoje.push(t);
+      return;
+    }
+
+    // 3. AMANHÃ
+    const amanhaData = new Date(hojeData);
+    amanhaData.setDate(amanhaData.getDate() + 1);
+
+    if (dataLimpa.getTime() === amanhaData.getTime()) {
+      amanha.push(t);
+      return;
+    }
+
+    // 4. PRÓXIMAS
+    proximas.push(t);
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = atrasadas.length;
+  document.getElementById("count-header-2").textContent = hoje.length;
+  document.getElementById("count-header-3").textContent = amanha.length;
+  document.getElementById("count-header-4").textContent = proximas.length;
+  document.getElementById("count-header-5").textContent = semdata.length;
+
+  // renderizar
+  atrasadas.forEach(t => list_1.appendChild(t));
+  hoje.forEach(t => list_2.appendChild(t));
+  amanha.forEach(t => list_3.appendChild(t));
+  proximas.forEach(t => document.getElementById("proximas-list").appendChild(t));
+  semdata.forEach(t => document.getElementById("semdata-list").appendChild(t));
+
+  if (atrasadas.length === 0) mostrarMensagemVazia(list_1, "Atrasadas");
+  if (hoje.length === 0) mostrarMensagemVazia(list_2, "Hoje");
+  if (amanha.length === 0) mostrarMensagemVazia(list_3, "Amanhã");
+
+  const proximasList = document.getElementById("proximas-list");
+  const semdataList = document.getElementById("semdata-list");
+
+  if (proximas.length === 0) mostrarMensagemVazia(proximasList, "Próximas");
+  if (semdata.length === 0) mostrarMensagemVazia(semdataList, "Sem data");
+}
+
+// ORGANIZAR POR CATEGORIA
+function organizarPorCategoria() {
+  const tarefas = Array.from(document.querySelectorAll(".task-item"));
+
+  // limpar listas existentes
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
+
+  // criar retângulos extra
+  criarRetanguloExtra("categoria-list-casa", "purple extra-category", "categoria-header-casa", "categoria-count-casa");
+  criarRetanguloExtra("categoria-list-semcat", "yellow extra-category", "categoria-header-semcat", "categoria-count-semcat");
+
+  // headers
+  document.getElementById("list-header-1").textContent = "Trabalho";
+  document.getElementById("list-header-2").textContent = "Estudos";
+  document.getElementById("list-header-3").textContent = "Lazer";
+  document.getElementById("categoria-header-casa").textContent = "Casa";
+  document.getElementById("categoria-header-semcat").textContent = "Sem categoria";
+
+  // arrays
+  const trabalho = [];
+  const estudos = [];
+  const lazer = [];
+  const casa = [];
+  const semcat = [];
+
+  // distribuir tarefas
+  tarefas.forEach(t => {
+    let cat = t.dataset.categoria;
+
+    if (!cat || cat === "Nenhuma") cat = "Sem categoria";
+
+    switch (cat) {
+      case "Trabalho":
+        trabalho.push(t);
+        break;
+      case "Estudos":
+        estudos.push(t);
+        break;
+      case "Lazer":
+        lazer.push(t);
+        break;
+      case "Casa":
+        casa.push(t);
+        break;
+      default:
+        semcat.push(t);
+        break;
+    }
+  });
+
+  // contadores
+  document.getElementById("count-header-1").textContent = trabalho.length;
+  document.getElementById("count-header-2").textContent = estudos.length;
+  document.getElementById("count-header-3").textContent = lazer.length;
+  document.getElementById("categoria-count-casa").textContent = casa.length;
+  document.getElementById("categoria-count-semcat").textContent = semcat.length;
+
+  // renderizar
+  trabalho.forEach(t => list_1.appendChild(t));
+  estudos.forEach(t => list_2.appendChild(t));
+  lazer.forEach(t => list_3.appendChild(t));
+  casa.forEach(t => document.getElementById("categoria-list-casa").appendChild(t));
+  semcat.forEach(t => document.getElementById("categoria-list-semcat").appendChild(t));
+
+  if (trabalho.length === 0) mostrarMensagemVazia(list_1, "Trabalho");
+  if (estudos.length === 0) mostrarMensagemVazia(list_2, "Estudos");
+  if (lazer.length === 0) mostrarMensagemVazia(list_3, "Lazer");
+
+  const casaList = document.getElementById("categoria-list-casa");
+  const semcatList = document.getElementById("categoria-list-semcat");
+
+  if (casa.length === 0) mostrarMensagemVazia(casaList, "Casa");
+  if (semcat.length === 0) mostrarMensagemVazia(semcatList, "Sem categoria");
+}
+
+// CRIAR ESPAÇO EXTRA
+function criarRetanguloExtra(idLista, cor, titulo, contadorId) {
+  const container = document.createElement("div");
+  container.className = `list-container ${cor}`; // ← ativa a sombra pela classe
+
+  container.innerHTML = `
+    <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="${titulo}" class="text" style="font-size:20px; font-weight:600;"></span>
+      </div>
+      <span id="${contadorId}" style="font-size:16px; font-weight:500; color:#555;">0</span>
+    </h2>
+    <ul id="${idLista}" class="tasks-list"></ul>
+  `;
+
+  document.getElementById("list-view").appendChild(container);
+}
+
+// REMOVER ESPAÇO EXTRA
+function removerRetangulosExtras() {
+
+  const extra1 = document.getElementById("proximas-list");
+  const extra2 = document.getElementById("semdata-list");
+  if (extra1) extra1.parentElement.remove();
+  if (extra2) extra2.parentElement.remove();
+
+  const extraCasa = document.getElementById("categoria-list-casa");
+  const extraSemCat = document.getElementById("categoria-list-semcat");
+  if (extraCasa) extraCasa.parentElement.remove();
+  if (extraSemCat) extraSemCat.parentElement.remove();
+}
+
+// CARREGAR TAREFAS NOVAMENTE 
+async function reconstruirTarefas() {
+  // limpar listas base
+  list_1.innerHTML = "";
+  list_2.innerHTML = "";
+  list_3.innerHTML = "";
+
+  // remover retângulos extra
+  removerRetangulosExtras();
+
+  const tarefas = await database.read(`/tarefas/${window.userID}`);
+
+  if (!tarefas) return;
+
+  const ordenadas = ordenarTarefas(tarefas);
+
+  ordenadas.forEach(([id, tarefa]) => {
+    criarCard(id, tarefa, list_1); // destino não importa, vai ser reorganizado depois
+  });
 }

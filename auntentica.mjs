@@ -36,10 +36,20 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((error) => {
           console.error("Erro ao autenticar:", error.code);
-          
-          if (error.code === "auth/invalid-credential"){
-            alert("Credenciais inválidas!!! Verifique o email e a password.");
-          }
+
+          const notif = document.getElementById("notification");
+          const notifText = document.getElementById("notif-text");
+          const notifIcon = document.getElementById("notif-icon");
+
+          notif.classList.remove("green-background");
+          notif.classList.add("show");
+          notifIcon.setAttribute("icon", "mdi:alert-circle-outline");
+          notif.style.backgroundColor = "#f87171"; // vermelho
+          notifText.textContent = "Credenciais inválidas! Verifica o email e a password.";
+
+          setTimeout(() => {
+            notif.classList.remove("show");
+          }, 3000);
 
           document.getElementById("password").value = "";
           console.clear();

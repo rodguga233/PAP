@@ -1,107 +1,79 @@
 <!DOCTYPE html>
 <html lang="pt">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-    </head>
-
-    <style> 
-        body { font-family: Arial, sans-serif; background-color: #272727; padding: 50px; }
-            
-        .container {
-            background-color: #ffffff;
-            width: 20%;
-            min-width: 150px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        p {
-            margin-top: 10px;
-            margin-bottom: 0px;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"] {
-            margin-top: 10px;
-            width: 100%;
-            height: auto;
-            padding: 10px;
-            background-color: #3564bb;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button[type="button"] {
-            margin-top: 10px;
-            width: 100%;
-            height: auto;
-            padding: 10px;
-            background-color: transparent;
-            border: 2px solid #3564bb;
-            color: #3564bb;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <body>
-        <script type="module" src="./auntentica.mjs"></script>
-        <div class="container">
-            <h1>Login</h1>
-            <form id="Login">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Email" required >
-                
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="Password" required >
-                <label style="cursor: pointer;  width: 155px;">
-                    <input type="checkbox" style="margin-bottom: 0px;" onclick="mostrar()">
-                    Mostrar Password
-                </label>
+    <title>Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/entry-page.css" />
+  </head>
+
+  <body>
+    <script type="module" src="./auntentica.mjs"></script>
+
+    <div class="row height-full" style="background-color: #F3F4F6;">
+
+      <div id="notification" class="notification hide">
+        <iconify-icon id="notif-icon" icon="mdi:alert-circle-outline" width="24" height="24"></iconify-icon>
+        <p id="notif-text"></p>
+      </div>
 
 
-                <script>
-                    function mostrar() {
-                        var x = document.getElementById("password");
+      <!-- left side -->
+      <div
+        class="left-column flex flex-column height-full justify-center items-center"
+      >
+        <h1 class="welcoming-title">Bem-vindo de volta</h1>
 
-                        if (x.type === "password") {
-                            x.type = "text";
-                        } else {
-                            x.type = "password";
-                        }
-                    }
-                </script>
+        <form id="Login" class="form" autocomplete="off">
+          <label for="email" class="label">Email</label>
+          <input type="email" name="email" id="email" class="input" required />
 
-                <input type="submit" value="Login">
-                <button type="button" onclick="window.location.href='criarConta.html'">Criar Conta </button>
-            </form>
-        </div>
-    </body>
+          <label for="password" class="label">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="input"
+            required
+          />
+
+          <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin-top: 10px; font-size: 15px; width: auto;">
+            <input type="checkbox" onclick="mostrar()" style="width: 20px; height: 20px; transform: scale(0.9); cursor: pointer;" />
+            <span class="label-text">Mostrar Password</span>
+          </label>
+
+
+          <button
+            type="submit"
+            class="button regular-button pink-background cta-btn"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <p class="sign-up-prompt">
+          Ainda não tens conta?
+          <a href="./criarConta.html" class="sign-up-link">Criar Conta</a>
+        </p>
+      </div>
+
+      <!-- right side -->
+      <div class="right-column"></div>
+    </div>
+
+    <script>
+      function mostrar() {
+        const x = document.getElementById("password");
+        x.type = x.type === "password" ? "text" : "password";
+      }
+    </script>
+  </body>
 </html>
