@@ -16,7 +16,7 @@ exports.enviarEmailsConclusao = onSchedule(
     region: "us-central1",
     secrets: [SENDGRID_KEY],
   },
-  async (event) => {
+  async () => {
     const apiKey = SENDGRID_KEY.value();
 
     // ✅ Verificação do secret
@@ -62,7 +62,7 @@ exports.enviarEmailsConclusao = onSchedule(
 
         const msg = {
           to: email,
-          from: "jesurodrigo924@gmail.com",
+          from: "organizadoradetarefaspap@gmail.com", // 🔥 NOVO REMETENTE
           subject: `Conclusão: ${tarefa.tarefa}`,
           text: `Olá ${nome || ""}! A data de conclusão chegou:\n\n${tarefa.tarefa}\n\nDescrição: ${tarefa.descricao || ""}`,
           html: `
