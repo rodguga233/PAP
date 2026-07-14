@@ -62,7 +62,7 @@ exports.enviarEmailsConclusao = onSchedule(
 
         const msg = {
           to: email,
-          from: "organizadoradetarefaspap@gmail.com", // 🔥 NOVO REMETENTE
+          from: "organizadordetarefaspap@gmail.com", // 🔥 NOVO REMETENTE
           subject: `Conclusão: ${tarefa.tarefa}`,
           text: `Olá ${nome || ""}! A data de conclusão chegou:\n\n${tarefa.tarefa}\n\nDescrição: ${tarefa.descricao || ""}`,
           html: `
