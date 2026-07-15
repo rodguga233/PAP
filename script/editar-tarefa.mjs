@@ -1,11 +1,14 @@
 import { database } from "../database/func.mjs";
 
 export function inicializarEditarTarefa(userID) {
+
+  // ABRIR POPUP DE EDITAR
   document.getElementById("edit-task-btn").addEventListener("click", async () => {
-    const currentTaskID = document.getElementById("view-name").dataset.taskId || window.currentTaskID;
+    const currentTaskID =
+      document.getElementById("view-name").dataset.taskId || window.currentTaskID;
+
     document.getElementById("view-name").dataset.taskId = currentTaskID;
 
-    
     if (!currentTaskID) return alert("Erro: nenhuma tarefa selecionada.");
 
     try {
@@ -24,12 +27,27 @@ export function inicializarEditarTarefa(userID) {
         document.getElementById("overlay-title").textContent = "Editar tarefa";
         document.getElementById("overlay-submit-btn").textContent = "Atualizar";
 
+        // CAMPOS
         document.getElementById("add-name").value = tarefa.tarefa;
-        document.getElementById("add-category").value = tarefa.categoria || "Nenhuma";
-        document.getElementById("add-desc").value = tarefa.descricao === "Sem descrição" ? "" : tarefa.descricao;
+
+        // CATEGORIA (ID)
+        const selectCat = document.getElementById("add-category");
+
+        // Se a categoria foi removida → mostrar "Nenhuma"
+        if (tarefa.categoria === "Nenhuma") {
+          selectCat.value = "Nenhuma";
+        } else {
+          const catExiste = await database.read(`categorias/${userID}/${tarefa.categoria}`);
+          selectCat.value = catExiste ? tarefa.categoria : "Nenhuma";
+        }
+
+        document.getElementById("add-desc").value =
+          tarefa.descricao === "Sem descrição" ? "" : tarefa.descricao;
+
         document.getElementById("add-prioridade").value = tarefa.prioridade || "Baixa";
         document.getElementById("add-status").value = tarefa.estado;
 
+        // DATA
         if (tarefa.conclusao !== "Sem data") {
           const dt = new Date(tarefa.conclusao);
 
@@ -39,7 +57,10 @@ export function inicializarEditarTarefa(userID) {
           const horas = String(dt.getHours()).padStart(2, "0");
           const minutos = String(dt.getMinutes()).padStart(2, "0");
 
-          document.getElementById("add-date").value = `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+          document.getElementById("add-date").value =
+            `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+        } else {
+          document.getElementById("add-date").value = "";
         }
       }
     } catch (error) {
@@ -48,9 +69,9 @@ export function inicializarEditarTarefa(userID) {
     }
   });
 
-  // Evento de submit para editar
+  // GUARDAR ALTERAÇÕES
   document.getElementById("form-add").addEventListener("submit", async (event) => {
-    if (!window.editar) return; // Sair se não está em modo edição
+    if (!window.editar) return;
 
     event.preventDefault();
 
@@ -58,10 +79,12 @@ export function inicializarEditarTarefa(userID) {
     if (!currentTaskID) return;
 
     const nomeVal = document.getElementById("add-name").value.trim();
-    const categoriaVal = document.getElementById("add-category").value.trim();
+    const categoriaVal = document.getElementById("add-category").value; // ← ID da categoria
     const descVal = document.getElementById("add-desc").value.trim() || "Sem descrição";
     const prioridadeVal = document.getElementById("add-prioridade").value;
     const dataVal = document.getElementById("add-date").value;
+    const estadoVal = document.getElementById("add-status").value;
+
     const agora = new Date();
 
     let conclusaoVal;
@@ -75,11 +98,10 @@ export function inicializarEditarTarefa(userID) {
 
     try {
       const tarefaAnterior = await database.read(`/tarefas/${userID}/${currentTaskID}`);
-      const estadoVal = document.getElementById("add-status").value;
 
       await database.updateData(`/tarefas/${userID}/${currentTaskID}`, {
         tarefa: nomeVal,
-        categoria: categoriaVal,
+        categoria: categoriaVal, // ← ID da categoria
         prioridade: prioridadeVal,
         descricao: descVal,
         conclusao: conclusaoVal,

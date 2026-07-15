@@ -18,7 +18,7 @@
   <body>
     <div class="content-container" style="background-color: #F3F4F6; min-height:100%; height:auto;">
 
-      <div id="notification" class="notification green-background">
+      <div id="notification" class="notification green-background" style="z-index: 99999;">
         <iconify-icon icon="mdi:check-circle-outline" width="24" height="24"></iconify-icon>
         <p>Tarefa apagada</p>
       </div>
@@ -53,6 +53,7 @@
               <div class="profile-dropdown" id="profile-dropdown">
                 <h3 class="dropdown-header">Olá, <span id="user-name">User</span></h3>
                 <button class="dropdown-item" id="edit-profile">Editar perfil</button>
+                <button class="dropdown-item" id="btn-open-gerir-categorias">Gerir categorias</button>
                 <button class="dropdown-item danger" id="logout-btn">Terminar sessão</button>
               </div>
             </div>
@@ -224,6 +225,75 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Popup de Nova / Editar Categoria -->
+    <div id="popup-categoria" class="overlay hide" style="background-color: #F3F4F6;">
+      <div class="overlay-content" style="max-width: 380px; background-color:#E5E7EB;">
+
+        <h2 id="popup-cat-titulo" class="header">Nova categoria</h2>
+
+        <label class="label">Nome da categoria</label>
+        <input
+          id="popup-cat-nome"
+          type="text"
+          class="input white-background"
+          placeholder="Ex: Faculdade"
+          style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #000;"
+        />
+
+        <label class="label" style="margin-top: 10px;">Cor</label>
+        <input
+          id="popup-cat-cor"
+          type="color"
+          value="#FFB800"
+          class="input white-background"
+          style="width: 100%; padding: 5px; border-radius: 6px; border: 1px solid #000;"
+        />
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+          <button id="popup-cat-cancelar"
+            class="button regular-button red-background"
+            style="padding: 10px 25px; border-radius: 6px;">
+            Cancelar
+          </button>
+
+          <button id="popup-cat-confirmar"
+            class="button regular-button green-background"
+            style="padding: 10px 25px; border-radius: 6px;">
+            Confirmar
+          </button>
+        </div>
+
+        <button id="popup-cat-eliminar"
+          class="button regular-button"
+          style="padding: 10px 25px; border-radius: 6px; margin-top:10px; width:100%; background-color:#FF0505;">
+          Eliminar categoria
+        </button>
+
+      </div>
+    </div>
+
+
+    <!-- Popup de Gerir Categorias -->
+    <div id="popup-gerir-categorias" class="overlay hide" style="background-color:#F3F4F6;">
+      <div class="overlay-content" style="max-width:380px; background-color:#E5E7EB;">
+
+        <h2 class="header">Categorias personalizadas</h2>
+
+        <div id="lista-categorias" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+          <!-- categorias personalizadas aparecem aqui -->
+        </div>
+
+        <button id="btn-criar-cat" class="button regular-button green-background" style="margin-top:15px;">
+          + Criar nova categoria
+        </button>
+
+        <button id="btn-fechar-gerir" class="button regular-button red-background" style="margin-top:10px;">
+          Fechar
+        </button>
+
       </div>
     </div>
 

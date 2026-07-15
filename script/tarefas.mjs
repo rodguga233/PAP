@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { inicializarCriarTarefa } from "./criar-tarefa.mjs";
 import { inicializarEditarTarefa } from "./editar-tarefa.mjs";
 import { inicializarEliminarTarefa } from "./eliminar-tarefa.mjs";
+import { carregarCategorias } from "./adicionar-categoria.mjs";
 
 const list_1 = document.getElementById("list-1");
 const list_2 = document.getElementById("list-2");
@@ -117,7 +118,7 @@ document.querySelectorAll("#filter-menu button").forEach(btn => {
 });
 
 // CRIAR CARD
-function criarCard(id, tarefa, destinoLista) {
+async function criarCard(id, tarefa, destinoLista) {
   const li = document.createElement("li");
   li.className = "task-item";
   li.style.paddingLeft = "9px";
@@ -162,8 +163,13 @@ function criarCard(id, tarefa, destinoLista) {
   categoria.style.fontSize = "13px";
   categoria.style.color = "#666";
   categoria.style.marginLeft = "6px";
-  categoria.textContent =
-    tarefa.categoria === "Nenhuma" ? "" : tarefa.categoria;
+
+  if (tarefa.categoria === "Nenhuma") {
+    categoria.textContent = "";
+  } else {
+    const cat = await database.read(`categorias/${window.userID}/${tarefa.categoria}`);
+    categoria.textContent = cat ? cat.nome : "Categoria removida";
+  }
 
   const linhaTopo = document.createElement("div");
   linhaTopo.style.display = "flex";
@@ -217,12 +223,17 @@ function criarCard(id, tarefa, destinoLista) {
   btn.appendChild(arrow);
   li.appendChild(btn);
 
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     window.currentTaskID = id;
     document.getElementById("view-name").textContent = tarefa.tarefa;
     document.getElementById("view-desc").textContent = tarefa.descricao;
-    document.getElementById("view-category").textContent =
-      tarefa.categoria === "Nenhuma" ? "Sem categoria" : tarefa.categoria;
+
+    if (tarefa.categoria === "Nenhuma") {
+      document.getElementById("view-category").textContent = "Sem categoria";
+    } else {
+      const cat = await database.read(`categorias/${window.userID}/${tarefa.categoria}`);
+      document.getElementById("view-category").textContent = cat ? cat.nome : "Categoria removida";
+    }
 
     document.getElementById("view-date").textContent =
       tarefa.conclusao === "Sem data"
@@ -281,22 +292,35 @@ onAuthStateChanged(auth, async user => {
   inicializarCriarTarefa(window.userID);
   inicializarEditarTarefa(window.userID);
   inicializarEliminarTarefa(window.userID);
+  carregarCategorias(window.userID);
 
   // CARREGAR TAREFAS
   const tarefas = await database.read(`/tarefas/${window.userID}`);
 
-  if (tarefas) {
-    setTimeout(() => {
-      let modoGuardado = localStorage.getItem("modoVisualizacao");
+  if (!tarefas) {
+    // Conta é recente → não existem tarefas
+    list_1.innerHTML = "";
+    list_2.innerHTML = "";
+    list_3.innerHTML = "";
 
-      if (!modoGuardado) {
-        modoGuardado = "estado";
-        localStorage.setItem("modoVisualizacao", "estado");
-      }
-
-      aplicarModoVisualizacao(modoGuardado);
-    }, 10);
+    mostrarMensagemVazia(list_1, "Sem tarefas criadas");
+    mostrarMensagemVazia(list_2, "Sem tarefas criadas");
+    mostrarMensagemVazia(list_3, "Sem tarefas criadas");
+    return;
   }
+
+  // Se existem tarefas → aplicar modo de visualização
+  setTimeout(() => {
+    let modoGuardado = localStorage.getItem("modoVisualizacao");
+
+    if (!modoGuardado) {
+      modoGuardado = "estado";
+      localStorage.setItem("modoVisualizacao", "estado");
+    }
+
+    aplicarModoVisualizacao(modoGuardado);
+  }, 10);
+
 });
 
 // ORDENAR TAREFAS
@@ -538,7 +562,7 @@ function organizarPorData() {
 }
 
 // ORGANIZAR POR CATEGORIA
-function organizarPorCategoria() {
+async function organizarPorCategoria() {
   const tarefas = Array.from(document.querySelectorAll(".task-item"));
 
   // limpar listas existentes
@@ -546,31 +570,48 @@ function organizarPorCategoria() {
   list_2.innerHTML = "";
   list_3.innerHTML = "";
 
-  // criar retângulos extra
-  criarRetanguloExtra("categoria-list-casa", "purple extra-category", "categoria-header-casa", "categoria-count-casa");
-  criarRetanguloExtra("categoria-list-semcat", "yellow extra-category", "categoria-header-semcat", "categoria-count-semcat");
+  // remover retângulos extra anteriores
+  removerRetangulosExtras();
 
-  // headers
+  // headers fixos
   document.getElementById("list-header-1").textContent = "Trabalho";
   document.getElementById("list-header-2").textContent = "Estudos";
   document.getElementById("list-header-3").textContent = "Lazer";
-  document.getElementById("categoria-header-casa").textContent = "Casa";
-  document.getElementById("categoria-header-semcat").textContent = "Sem categoria";
 
-  // arrays
   const trabalho = [];
   const estudos = [];
   const lazer = [];
   const casa = [];
-  const semcat = [];
+  const semCategoria = [];
 
-  // distribuir tarefas
-  tarefas.forEach(t => {
-    let cat = t.dataset.categoria;
+  // 1. Buscar categorias personalizadas
+  const categoriasPersonalizadas = await database.read(`categorias/${window.userID}`) || {};
 
-    if (!cat || cat === "Nenhuma") cat = "Sem categoria";
+  const mapaExtras = {};
 
-    switch (cat) {
+  Object.entries(categoriasPersonalizadas).forEach(([id, cat]) => {
+    mapaExtras[id] = {
+      id,
+      nome: cat.nome,
+      cor: cat.cor || "#b38bff",
+      tarefas: []
+    };
+  });
+
+  // 2. Distribuir tarefas
+  for (const t of tarefas) {
+    const catID = t.dataset.categoria;
+    let nomeCat;
+
+    if (!catID || catID === "Nenhuma") {
+      nomeCat = "Sem categoria";
+    } else if (mapaExtras[catID]) {
+      nomeCat = mapaExtras[catID].nome;
+    } else {
+      nomeCat = "Categoria removida";
+    }
+
+    switch (nomeCat) {
       case "Trabalho":
         trabalho.push(t);
         break;
@@ -583,46 +624,90 @@ function organizarPorCategoria() {
       case "Casa":
         casa.push(t);
         break;
+      case "Sem categoria":
+        semCategoria.push(t);
+        break;
       default:
-        semcat.push(t);
+        mapaExtras[catID]?.tarefas.push(t);
         break;
     }
-  });
+  }
 
-  // contadores
+  // ⭐ ATUALIZAR CONTADORES FIXOS (o que estava a faltar!)
   document.getElementById("count-header-1").textContent = trabalho.length;
   document.getElementById("count-header-2").textContent = estudos.length;
   document.getElementById("count-header-3").textContent = lazer.length;
-  document.getElementById("categoria-count-casa").textContent = casa.length;
-  document.getElementById("categoria-count-semcat").textContent = semcat.length;
 
-  // renderizar
+  // 3. Renderizar categorias fixas
   trabalho.forEach(t => list_1.appendChild(t));
   estudos.forEach(t => list_2.appendChild(t));
   lazer.forEach(t => list_3.appendChild(t));
-  casa.forEach(t => document.getElementById("categoria-list-casa").appendChild(t));
-  semcat.forEach(t => document.getElementById("categoria-list-semcat").appendChild(t));
 
   if (trabalho.length === 0) mostrarMensagemVazia(list_1, "Trabalho");
   if (estudos.length === 0) mostrarMensagemVazia(list_2, "Estudos");
   if (lazer.length === 0) mostrarMensagemVazia(list_3, "Lazer");
 
-  const casaList = document.getElementById("categoria-list-casa");
-  const semcatList = document.getElementById("categoria-list-semcat");
+  // 4. Secção fixa: CASA
+  criarRetanguloExtra(
+    "categoria-list-casa",
+    "#b38bff",
+    "categoria-header-casa",
+    "categoria-count-casa"
+  );
 
-  if (casa.length === 0) mostrarMensagemVazia(casaList, "Casa");
-  if (semcat.length === 0) mostrarMensagemVazia(semcatList, "Sem categoria");
+  document.getElementById("categoria-header-casa").textContent = "Casa";
+  document.getElementById("categoria-count-casa").textContent = casa.length;
+
+  const listaCasa = document.getElementById("categoria-list-casa");
+  casa.forEach(t => listaCasa.appendChild(t));
+
+  if (casa.length === 0) mostrarMensagemVazia(listaCasa, "Casa");
+
+  // 5. Secções dinâmicas
+  Object.values(mapaExtras).forEach(catInfo => {
+    if (catInfo.tarefas.length === 0) return;
+
+    const listaID = `categoria-list-${catInfo.id}`;
+    const headerID = `categoria-header-${catInfo.id}`;
+    const countID = `categoria-count-${catInfo.id}`;
+
+    criarRetanguloExtra(listaID, catInfo.cor, headerID, countID);
+
+    document.getElementById(headerID).textContent = catInfo.nome;
+    document.getElementById(countID).textContent = catInfo.tarefas.length;
+
+    const lista = document.getElementById(listaID);
+    catInfo.tarefas.forEach(t => lista.appendChild(t));
+  });
+
+  // 6. Secção fixa: SEM CATEGORIA
+  criarRetanguloExtra(
+    "categoria-list-semcat",
+    "#ffff8b",
+    "categoria-header-semcat",
+    "categoria-count-semcat"
+  );
+
+  document.getElementById("categoria-header-semcat").textContent = "Sem categoria";
+  document.getElementById("categoria-count-semcat").textContent = semCategoria.length;
+
+  const listaSemCat = document.getElementById("categoria-list-semcat");
+  semCategoria.forEach(t => listaSemCat.appendChild(t));
+
+  if (semCategoria.length === 0) mostrarMensagemVazia(listaSemCat, "Sem categoria");
 }
 
-// CRIAR ESPAÇO EXTRA
-function criarRetanguloExtra(idLista, cor, titulo, contadorId) {
+// CRIAR ESPAÇO EXTRA (usa cor da Firebase na shadow)
+function criarRetanguloExtra(idLista, corHex, tituloId, contadorId) {
   const container = document.createElement("div");
-  container.className = `list-container ${cor}`; // ← ativa a sombra pela classe
+  container.className = "list-container";
+
+  container.style.boxShadow = `6px 6px 0px ${corHex}`;
 
   container.innerHTML = `
     <h2 class="list-header" style="display:flex; justify-content:space-between; align-items:center;">
       <div style="display:flex; align-items:center; gap:8px;">
-        <span id="${titulo}" class="text" style="font-size:20px; font-weight:600;"></span>
+        <span id="${tituloId}" class="text" style="font-size:20px; font-weight:600;"></span>
       </div>
       <span id="${contadorId}" style="font-size:16px; font-weight:500; color:#555;">0</span>
     </h2>
@@ -634,16 +719,12 @@ function criarRetanguloExtra(idLista, cor, titulo, contadorId) {
 
 // REMOVER ESPAÇO EXTRA
 function removerRetangulosExtras() {
-
-  const extra1 = document.getElementById("proximas-list");
-  const extra2 = document.getElementById("semdata-list");
-  if (extra1) extra1.parentElement.remove();
-  if (extra2) extra2.parentElement.remove();
-
-  const extraCasa = document.getElementById("categoria-list-casa");
-  const extraSemCat = document.getElementById("categoria-list-semcat");
-  if (extraCasa) extraCasa.parentElement.remove();
-  if (extraSemCat) extraSemCat.parentElement.remove();
+  const extras = document.querySelectorAll(".list-container");
+  extras.forEach(e => {
+    if (!e.contains(list_1) && !e.contains(list_2) && !e.contains(list_3)) {
+      e.remove();
+    }
+  });
 }
 
 // CARREGAR TAREFAS NOVAMENTE 
@@ -662,7 +743,8 @@ async function reconstruirTarefas() {
 
   const ordenadas = ordenarTarefas(tarefas);
 
-  ordenadas.forEach(([id, tarefa]) => {
-    criarCard(id, tarefa, list_1); // destino não importa, vai ser reorganizado depois
-  });
+  for (const [id, tarefa] of ordenadas) {
+    await criarCard(id, tarefa, list_1); // destino não importa, vai ser reorganizado depois
+  }
 }
+
