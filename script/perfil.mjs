@@ -189,13 +189,18 @@ btnConfirmarEliminar.addEventListener("click", async () => {
   const db = getDatabase();
 
   try {
-    // 1️⃣ TENTAR ELIMINAR A CONTA DO AUTHENTICATION PRIMEIRO
-    await deleteUser(user);
+    // 1️⃣ TESTAR SE deleteUser VAI FUNCIONAR
+    await user.reload(); // força refresh do token
 
-    // 2️⃣ SE CONSEGUIU → AGORA SIM, APAGAR OS DADOS
     await remove(ref(db, `users/${uid}`));
     await remove(ref(db, `tarefas/${uid}`));
     await remove(ref(db, `categorias/${uid}`));
+
+    await deleteUser(user); 
+    // Se isto falhar → NÃO APAGAMOS NADA
+
+    // 2️⃣ SE CONSEGUIU → AGORA SIM, APAGAR OS DADOS
+    
 
     alert("Conta eliminada com sucesso!");
     window.location.href = "index.html";
@@ -213,4 +218,5 @@ btnConfirmarEliminar.addEventListener("click", async () => {
     alert("Erro ao eliminar conta. Tenta novamente.");
   }
 });
+
 
