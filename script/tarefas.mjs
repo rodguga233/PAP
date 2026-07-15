@@ -478,7 +478,7 @@ function organizarPorData() {
   list_3.innerHTML = "";
 
   // criar retângulo extra
-  criarRetanguloExtra("proximas-list", "purple", "list-header-4", "count-header-4");
+  criarRetanguloExtra("proximas-list","#b38bff","list-header-4","count-header-4");
   criarRetanguloExtra("semdata-list", "yellow", "list-header-5", "count-header-5");
 
   // headers
