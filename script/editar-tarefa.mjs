@@ -34,9 +34,15 @@ export function inicializarEditarTarefa(userID) {
         const selectCat = document.getElementById("add-category");
 
         // Se a categoria foi removida → mostrar "Nenhuma"
+        const principais = ["Trabalho", "Estudos", "Lazer", "Casa"];
+
         if (tarefa.categoria === "Nenhuma") {
           selectCat.value = "Nenhuma";
-        } else {
+        }
+        else if (principais.includes(tarefa.categoria)) {
+          selectCat.value = tarefa.categoria; // ← agora funciona
+        }
+        else {
           const catExiste = await database.read(`categorias/${userID}/${tarefa.categoria}`);
           selectCat.value = catExiste ? tarefa.categoria : "Nenhuma";
         }

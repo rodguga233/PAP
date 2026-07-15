@@ -164,9 +164,15 @@ async function criarCard(id, tarefa, destinoLista) {
   categoria.style.color = "#666";
   categoria.style.marginLeft = "6px";
 
+  const principais = ["Trabalho", "Estudos", "Lazer", "Casa"];
+
   if (tarefa.categoria === "Nenhuma") {
     categoria.textContent = "";
-  } else {
+  } 
+  else if (principais.includes(tarefa.categoria)) {
+    categoria.textContent = tarefa.categoria; // ← agora funciona
+  } 
+  else {
     const cat = await database.read(`categorias/${window.userID}/${tarefa.categoria}`);
     categoria.textContent = cat ? cat.nome : "Categoria removida";
   }
@@ -228,9 +234,15 @@ async function criarCard(id, tarefa, destinoLista) {
     document.getElementById("view-name").textContent = tarefa.tarefa;
     document.getElementById("view-desc").textContent = tarefa.descricao;
 
+    const principais = ["Trabalho", "Estudos", "Lazer", "Casa"];
+
     if (tarefa.categoria === "Nenhuma") {
       document.getElementById("view-category").textContent = "Sem categoria";
-    } else {
+    }
+    else if (principais.includes(tarefa.categoria)) {
+      document.getElementById("view-category").textContent = tarefa.categoria;
+    }
+    else {
       const cat = await database.read(`categorias/${window.userID}/${tarefa.categoria}`);
       document.getElementById("view-category").textContent = cat ? cat.nome : "Categoria removida";
     }
@@ -603,11 +615,18 @@ async function organizarPorCategoria() {
     const catID = t.dataset.categoria;
     let nomeCat;
 
+    const principais = ["Trabalho", "Estudos", "Lazer", "Casa"];
+
     if (!catID || catID === "Nenhuma") {
       nomeCat = "Sem categoria";
-    } else if (mapaExtras[catID]) {
+    }
+    else if (principais.includes(catID)) {
+      nomeCat = catID; // ← agora funciona
+    }
+    else if (mapaExtras[catID]) {
       nomeCat = mapaExtras[catID].nome;
-    } else {
+    }
+    else {
       nomeCat = "Categoria removida";
     }
 

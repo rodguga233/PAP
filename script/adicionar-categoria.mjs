@@ -48,7 +48,7 @@ function abrirPopupCriar() {
   popupNome.value = "";
   popupCor.value = "#FFB800";
 
-  btnConfirmar.textContent = "Criar categoria";
+  btnConfirmar.textContent = "Guardar";
   btnEliminar.style.display = "none";
 
   popup.classList.remove("hide");

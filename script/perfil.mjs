@@ -181,7 +181,6 @@ btnCancelarEliminar.addEventListener("click", () => {
   popupEliminar.classList.add("hide");
 });
 
-// CONFIRMAR → ELIMINAR CONTA
 btnConfirmarEliminar.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user) return;
@@ -190,13 +189,13 @@ btnConfirmarEliminar.addEventListener("click", async () => {
   const db = getDatabase();
 
   try {
-    // 1️⃣ ELIMINAR DADOS DO UTILIZADOR
+    // 1️⃣ TENTAR ELIMINAR A CONTA DO AUTHENTICATION PRIMEIRO
+    await deleteUser(user);
+
+    // 2️⃣ SE CONSEGUIU → AGORA SIM, APAGAR OS DADOS
     await remove(ref(db, `users/${uid}`));
     await remove(ref(db, `tarefas/${uid}`));
     await remove(ref(db, `categorias/${uid}`));
-
-    // 2️⃣ ELIMINAR CONTA DO AUTHENTICATION
-    await deleteUser(user);
 
     alert("Conta eliminada com sucesso!");
     window.location.href = "index.html";
@@ -214,3 +213,4 @@ btnConfirmarEliminar.addEventListener("click", async () => {
     alert("Erro ao eliminar conta. Tenta novamente.");
   }
 });
+
