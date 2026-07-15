@@ -148,3 +148,29 @@ h1 {
 .yellow-background {
   background-color: var(--yellow);
 }
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.overlay.hide {
+  display: none;
+}
+
+.overlay-content {
+  animation: popupFade 0.2s ease;
+}
+
+@keyframes popupFade {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

@@ -162,3 +162,55 @@ saveBtn.addEventListener("click", async () => {
 backBtn.addEventListener("click", () => {
   window.location.href = "tarefas.html";
 });
+
+import { deleteUser } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getDatabase, ref, remove } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+// ELEMENTOS DO POPUP
+const popupEliminar = document.getElementById("popup-eliminar-conta");
+const btnConfirmarEliminar = document.getElementById("confirmar-eliminar");
+const btnCancelarEliminar = document.getElementById("cancelar-eliminar");
+
+// ABRIR POPUP AO CLICAR NO BOTÃO
+document.getElementById("delete-account-btn").addEventListener("click", () => {
+  popupEliminar.classList.remove("hide");
+});
+
+// CANCELAR → FECHAR POPUP
+btnCancelarEliminar.addEventListener("click", () => {
+  popupEliminar.classList.add("hide");
+});
+
+// CONFIRMAR → ELIMINAR CONTA
+btnConfirmarEliminar.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const uid = user.uid;
+  const db = getDatabase();
+
+  try {
+    // 1️⃣ ELIMINAR DADOS DO UTILIZADOR
+    await remove(ref(db, `users/${uid}`));
+    await remove(ref(db, `tarefas/${uid}`));
+    await remove(ref(db, `categorias/${uid}`));
+
+    // 2️⃣ ELIMINAR CONTA DO AUTHENTICATION
+    await deleteUser(user);
+
+    alert("Conta eliminada com sucesso!");
+    window.location.href = "index.html";
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === "auth/requires-recent-login") {
+      alert("A tua sessão expirou. Faz login novamente para eliminar a conta.");
+      signOut(auth);
+      window.location.href = "index.html";
+      return;
+    }
+
+    alert("Erro ao eliminar conta. Tenta novamente.");
+  }
+});

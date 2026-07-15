@@ -64,9 +64,41 @@
 
         <button id="save-profile" class="save-btn">Guardar alterações</button>
         <button id="back-btn" class="back-btn">Voltar</button>
-
+        <button id="delete-account-btn" 
+                class="back-btn" 
+                style="background:#ff4d4d; color:white;">
+          Eliminar conta
+        </button>
       </div>
 
+    </div>
+
+    <!-- POPUP ELIMINAR CONTA -->
+    <div id="popup-eliminar-conta" class="overlay hide">
+      <div class="overlay-content" style="max-width:350px; background:#fff; padding:20px; border-radius:10px;">
+
+        <h2 style="margin-bottom:10px; color:#b30000;">Eliminar conta</h2>
+
+        <p style="font-size:15px; margin-bottom:15px;">
+          Esta ação é <strong>permanente</strong> e não pode ser revertida.<br>
+          Todos os teus dados serão eliminados.
+        </p>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button id="cancelar-eliminar" 
+                  class="button regular-button" 
+                  style="flex:1; background:#E5E7EB;">
+            Cancelar
+          </button>
+
+          <button id="confirmar-eliminar" 
+                  class="button regular-button red-background" 
+                  style="flex:1; background:#ff4d4d;">
+            Confirmar
+          </button>
+        </div>
+
+      </div>
     </div>
 
     <script type="module" src="./script/perfil.mjs"></script>
